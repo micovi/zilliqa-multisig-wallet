@@ -1,0 +1,370 @@
+$brand: #49c1bf;
+$dark: #021c39;
+$light: #c9e2ff;
+$Quicksand: "Quicksand", sans-serif;
+
+$theme-colors: (
+  "primary": $brand
+);
+
+.swal2-popup {
+  background-color: $dark !important;
+
+  .swal2-title {
+    color: $brand !important;
+  }
+  .swal2-content {
+    color: $light !important;
+  }
+}
+
+@import "@/../node_modules/bootstrap/scss/bootstrap";
+
+html,
+body {
+  background-color: $dark;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  width: 100%;
+  height: 100%;
+}
+
+#app {
+  font-family: $Quicksand;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: $dark;
+  height: 100%;
+
+  &.loggedIn {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+  }
+
+  #nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #354960;
+    padding-top: 50px;
+
+    a {
+      color: #ffffff;
+      font-family: $Quicksand;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.5rem 2rem;
+      text-decoration: none;
+
+      &:hover {
+        color: $brand;
+      }
+    }
+  }
+
+  #screen-view {
+    height: 100%;
+  }
+}
+
+#networkSelector {
+  position: absolute;
+  top: 5%;
+  right: 10%;
+  color: #fff;
+  z-index: 9999;
+}
+
+.title {
+  color: $brand;
+  font-family: $Quicksand;
+  font-size: 2.75rem;
+  font-weight: 700;
+}
+.subtitle {
+  font-family: $Quicksand;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 2.125rem;
+  color: $brand;
+}
+
+p {
+  font-family: $Quicksand;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #fff;
+}
+
+.actions-container {
+  display: flex;
+  margin-top: 4rem;
+}
+.button {
+  border-radius: 0.188rem;
+  border: 0.063rem solid $light;
+  color: $light;
+  font-family: $Quicksand;
+  font-size: 0.813rem;
+  font-weight: 700;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:not(--last-of-type) {
+    margin-right: 2rem;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: $light;
+    color: $dark;
+  }
+}
+
+.login {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  .zilliqa {
+    position: absolute;
+    top: 0;
+    right: 10%;
+    height: 100%;
+  }
+
+  h2 {
+    color: #ffffff;
+    font-family: $Quicksand;
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 2.125rem;
+  }
+
+  .actions-container {
+    display: flex;
+    margin-top: 4rem;
+  }
+  .button {
+    border-radius: 0.188rem;
+    border: 0.063rem solid $light;
+    color: $light;
+    font-family: $Quicksand;
+    font-size: 0.813rem;
+    font-weight: 700;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:not(--last-of-type) {
+      margin-right: 2rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: $light;
+      color: $dark;
+    }
+  }
+  .login {
+    width: 100%;
+    height: 100%;
+
+    .container {
+      width: 30%;
+      margin-left: 10%;
+    }
+
+    .zilliqa {
+      position: absolute;
+      top: 0;
+      right: 10%;
+      height: 100%;
+    }
+  }
+}
+
+#networkSelector {
+  font-family: $Quicksand;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #ffffff;
+  display: flex;
+
+  .logout-button {
+    padding-right: 1rem;
+    border-right: 1px solid $brand;
+    a {
+      color: #fff;
+    }
+  }
+
+  .dropdown {
+    padding-left: 1rem;
+    position: relative;
+
+    span {
+      color: $brand;
+    }
+    &:hover {
+      .dropdown-list {
+        display: block;
+      }
+    }
+    .dropdown-list {
+      display: none;
+
+      position: absolute;
+      z-index: 99;
+      background-color: #fff;
+
+      a {
+        color: $dark;
+        cursor: pointer;
+
+        &:hover {
+          color: $brand;
+        }
+      }
+    }
+  }
+}
+
+.create-wallet {
+  .owners-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+
+    .owner {
+      border-radius: 0.375rem;
+      background-color: #354960;
+      padding: 1rem;
+      color: #ffffff;
+      font-family: $Quicksand;
+      font-size: 0.75rem;
+      font-weight: 400;
+      position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      .name {
+        font-weight: 700;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        z-index: 2;
+        background-color: transparentize(
+          lighten(map-get($theme-colors, "danger"), 10),
+          0.2
+        );
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.375rem;
+        display: none;
+        cursor: pointer;
+      }
+
+      &:hover {
+        .overlay {
+          display: flex;
+        }
+      }
+    }
+    .add-owner {
+      border-radius: 0.375rem;
+      background-color: $light;
+      color: $dark;
+      font-family: $Quicksand;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 3rem;
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        cursor: pointer;
+        background-color: lighten(map-get($theme-colors, "success"), 40);
+      }
+    }
+  }
+
+  .signature-input {
+    display: flex;
+
+    input {
+      width: 38px;
+      height: 38px;
+    }
+    .controller {
+      border-radius: 0.375rem;
+      border: 0.063rem solid #707070;
+      background-color: $light;
+      width: 38px;
+      height: 38px;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+
+      &:not(:first-of-type) {
+        margin-left: 0.5rem;
+      }
+
+      margin-right: 0.5rem;
+
+      &:hover {
+        cursor: pointer;
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .advanced-options {
+    display: flex;
+
+    .option {
+      display: flex;
+      color: #fff;
+      align-items: center;
+
+      input {
+        margin-left: 1rem;
+      }
+
+      &:not(:first-of-type) {
+        margin-left: 1rem;
+      }
+    }
+  }
+
+  input {
+    border-radius: 0.375rem;
+    padding-left: 14px;
+    height: 38px;
+    border: 0;
+  }
+}
+
+.btn {
+  border-radius: 0.375rem;
+  padding: 1rem 4rem;
+  color: $dark;
+  font-family: $Quicksand;
+  font-size: 0.75rem;
+  font-weight: 700;
+}

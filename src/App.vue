@@ -1,29 +1,49 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+  <div id="app" :class="{loggedIn}">
+    <div id="nav" v-if="isLogged && $route.name !== 'welcome'">
+      <router-link to="/">Dashboard</router-link>
+      <router-link to="/create-wallet">Create Wallet</router-link>
+      <router-link to="/wallets">Wallets List</router-link>
+      <router-link to="/import-wallet">Import Wallet</router-link>
     </div>
-    <router-view/>
+    <div id="screen-view">
+      <NetworkSelector />
+      <div class="container pt-4">
+        <router-view />
+      </div>
+    </div>
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+import NetworkSelector from "./components/NetworkSelector";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { mapGetters } from "vuex";
+
+export default {
+  name: "App",
+  components: {
+    NetworkSelector
+  },
+  computed: {
+    ...mapGetters("general", {
+      isLogged: "isLogged"
+    }),
+    loggedIn() {
+      if (this.isLogged === true && this.$route.name !== "login" && this.$route.name !== "welcome") {
+        return true;
+      }
+      return false;
+    }
+  },
+  mounted() {
+    if (!this.isLogged && this.$route.name !== "login") {
+      return this.$router.push({ name: "login" });
     }
   }
-}
+};
+</script>
+
+<style lang="scss">
+@import "@/assets/style.scss";
 </style>
