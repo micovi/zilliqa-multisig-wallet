@@ -24,7 +24,6 @@
 
 <script>
 import Swal from "sweetalert2";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
 
 export default {
   name: "login",

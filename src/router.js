@@ -36,12 +36,12 @@ export default new Router({
       component: Import
     },
     {
-      path: '/wallet-list',
+      path: '/wallets',
       name: 'wallet-list',
       component: WalletList
     },
     {
-      path: '/wallet',
+      path: '/wallet/:address',
       name: 'wallet',
       component: Wallet
     },

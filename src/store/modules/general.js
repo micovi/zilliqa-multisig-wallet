@@ -37,6 +37,7 @@ const getters = {
     networks: state => state.networks,
     wallet: state => state.wallet,
     selectedNetwork: state => state.network,
+    personalAddress: state => state.address,
     walletType: state => state.login_type
 };
 
@@ -55,6 +56,7 @@ const actions = {
         commit('setWallet', null);
         commit('setAddress', null);
         commit('setLoginType', null);
+        commit('wallets/clear', null, { root: true });
     },
     changeNetwork({ commit, state }, url) {
         const network = state.networks.find(function (item) {

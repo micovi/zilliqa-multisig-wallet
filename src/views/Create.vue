@@ -1,5 +1,5 @@
 <template>
-  <div class="create-wallet">
+  <div class="create-wallet" v-if="isDeployed === false">
     <h1 class="title mb-5">Create a new wallet</h1>
     <p>This wallet does not allow adding or removing owners, or changing the number of required signatures.</p>
     <p class="mb-5">
@@ -60,6 +60,16 @@
       </div>
     </div>
   </div>
+  <success-screen v-else>
+    <div class="subtitle text-primary mb-5">
+      Your wallet was deployed with the following address
+      <br />
+      <span class="text-white">{{ deployedWallet.contractId }}</span>
+    </div>
+    <router-link class="btn btn-primary"
+      :to="{name: 'wallet', params:{address: deployedWallet.contractId}}"
+    >Go to wallet now</router-link>
+  </success-screen>
 </template>
 
 <script>
@@ -69,16 +79,22 @@ import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
 import { fromBech32Address, toBech32Address } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
+import SuccessScreen from "@/components/SuccessScreen.vue";
 
 export default {
   name: "CreateWallet",
+  components: {
+    SuccessScreen
+  },
   data() {
     return {
       owners: [],
       signatures: 2,
       gasPrice: 1000000000,
       gasLimit: 5000,
-      isLoading: false
+      isLoading: false,
+      isDeployed: false,
+      deployedWallet: {}
     };
   },
   computed: {
@@ -651,23 +667,16 @@ end
               constructor: "Cons",
               argtypes: ["ByStr20"],
               arguments: [
-                "0x1234567890123456789012345678906784567890",
+                "0x9641E9c1e7712db9A8a429fdB42553d03a141fCd",
                 {
                   constructor: "Cons",
                   argtypes: ["ByStr20"],
                   arguments: [
-                    "0xabcdeabcde123456786782345678901234567890",
+                    "0xd90f2e538ce0df89c8273cad3b63ec44a3c4ed82",
                     {
-                      constructor: "Cons",
+                      constructor: "Nil",
                       argtypes: ["ByStr20"],
-                      arguments: [
-                        "0xffcdeabcde126786789012345678901234567890",
-                        {
-                          constructor: "Nil",
-                          argtypes: ["ByStr20"],
-                          arguments: []
-                        }
-                      ]
+                      arguments: []
                     }
                   ]
                 }
@@ -684,8 +693,6 @@ end
         // Instance of class Contract
         const contract = zilliqa.contracts.new(contractCode, init);
 
-        console.log("cc", contract);
-
         // Deploy the contract
         const [deployTx, contractData] = await contract.deploy({
           version: VERSION,
@@ -693,9 +700,30 @@ end
           gasLimit: Long.fromNumber(this.gasLimit)
         });
 
-        console.log(deployTx);
-        console.log(hello);
-        console.log("DONEEEEEEEEEEEEEEEE");
+        if (deployTx.receipt === undefined) {
+          throw "Deployment transaction could not be completed";
+        }
+
+        if (deployTx.receipt.success === false) {
+          throw `Deployment transaction failed with errors: ${
+            deployTx.receipt.errors[0]
+          }`;
+        } else {
+          this.deployedWallet = {
+            transId: deployTx.id,
+            contractId: contractData.address,
+            owners_list: this.owners,
+            signatures: this.signatures,
+            network: this.network.url
+          };
+
+          try {
+            this.$store.dispatch("wallets/addWallet", this.deployedWallet);
+            this.isDeployed = true;
+          } catch (error) {
+            throw error;
+          }
+        }
       } catch (error) {
         Swal.fire({
           type: "error",

@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import VuexPersist from 'vuex-persist'
 
 import general from './modules/general'
+import wallets from './modules/wallets'
 
 Vue.use(Vuex)
 
@@ -13,7 +14,8 @@ const vuexPersist = new VuexPersist({
 
 export default new Vuex.Store({
   modules: {
-    general
+    general,
+    wallets
   },
   plugins: [vuexPersist.plugin]
 })

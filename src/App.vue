@@ -1,14 +1,14 @@
 <template>
   <div id="app" :class="{loggedIn}">
     <div id="nav" v-if="isLogged && $route.name !== 'welcome'">
-      <router-link to="/">Dashboard</router-link>
+      <router-link to="/dashboard">Dashboard</router-link>
       <router-link to="/create-wallet">Create Wallet</router-link>
       <router-link to="/wallets">Wallets List</router-link>
       <router-link to="/import-wallet">Import Wallet</router-link>
     </div>
     <div id="screen-view">
       <NetworkSelector />
-      <div class="container pt-4">
+      <div class="container flexed pt-4">
         <router-view />
       </div>
     </div>
@@ -17,7 +17,6 @@
 
 <script>
 import NetworkSelector from "./components/NetworkSelector";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 
 export default {
