@@ -10,10 +10,11 @@
       <add-funds
         :bech32="bech32Address"
         :address="address"
+        :zilliqa="zilliqa"
         v-on:cancel-add-funds="onCancelAddFunds"
         v-if="addFunds"
       ></add-funds>
-      <new-transaction v-on:cancel-new-transaction="onCancelNewTransaction" v-if="newTransaction"></new-transaction>
+      <new-transaction :zilliqa="zilliqa" :address="address" v-on:cancel-new-transaction="onCancelNewTransaction" v-if="newTransaction"></new-transaction>
       <div class="sidebar">
         <contract-actions
           :balance="wallet.balance"
@@ -41,6 +42,7 @@ import AddFunds from "@/components/AddFunds";
 import ContractActions from "@/components/Wallet/ContractActions";
 import ContractOwners from "@/components/Wallet/ContractOwners";
 import NewTransaction from "@/components/Wallet/NewTransaction";
+import { units, BN } from '@zilliqa-js/util';
 
 export default {
   name: "Wallet",
@@ -69,7 +71,8 @@ export default {
   computed: {
     ...mapGetters("general", {
       network: "selectedNetwork",
-      personalAddress: "personalAddress"
+      personalAddress: "personalAddress",
+      localWallet: "wallet"
     }),
     ...mapGetters("wallets", {
       getWalletOwnersList: "getOwnersList"
@@ -94,6 +97,8 @@ export default {
   async mounted() {
     try {
       this.zilliqa = new Zilliqa(this.network.url);
+
+      this.zilliqa.wallet.addByPrivateKey(this.localWallet.privateKey);
 
       let address = this.$route.params.address;
 
@@ -134,7 +139,7 @@ export default {
       );
 
       if (contractState.result !== undefined) {
-        this.balance = contractState.result._balance;
+        this.wallet.balance = units.fromQa(new BN(contractState.result._balance), units.Units.Zil);
       } else {
         throw contractState.error;
       }

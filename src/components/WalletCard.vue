@@ -20,6 +20,7 @@ import { mapGetters } from "vuex";
 import numbro from "numbro";
 
 import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
+import { units, BN } from '@zilliqa-js/util';
 
 export default {
   name: "WalletCard",
@@ -45,8 +46,11 @@ export default {
       );
 
       if (state.result !== undefined && state.error === undefined) {
-        this.balance = numbro(state.result._balance).format({
-          thousandSeparated: true
+        const fbalance = units.fromQa(new BN(state.result._balance), units.Units.Zil);
+
+        this.balance = numbro(fbalance).format({
+          thousandSeparated: true,
+          mantissa: 0
         });
         this.loading = false;
       }
