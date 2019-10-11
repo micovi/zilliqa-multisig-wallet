@@ -25,7 +25,7 @@ const state = {
             msgVersion: 1
         }
     ],
-    wallet: null,
+    keystore: null,
     address: null,
     login_type: null
 };
@@ -38,19 +38,15 @@ const getters = {
     wallet: state => state.wallet,
     selectedNetwork: state => state.network,
     personalAddress: state => state.address,
-    walletType: state => state.login_type
+    walletType: state => state.login_type,
+    getKeystore: state => state.keystore
 };
 
 const actions = {
-    login({ commit }, { login_type, wallet }) {
+    login({ commit }, { login_type, keystore, address }) {
         commit('setLoginType', login_type);
-
-        if (login_type === 'keystore') {
-            commit('setWallet', wallet);
-            commit('setAddress', wallet.address);
-        } else {
-            commit('setAddress', wallet);
-        }
+        commit('setAddress', address);
+        commit('setKeystore', keystore);
     },
     logout({ commit }) {
         commit('setWallet', null);
@@ -72,11 +68,11 @@ const mutations = {
     setNetwork(state, payload) {
         state.network = payload;
     },
-    setWallet(state, payload) {
-        state.wallet = payload;
-    },
     setAddress(state, payload) {
         state.address = payload;
+    },
+    setKeystore(state, payload) {
+        state.keystore = payload
     },
     setLoginType(state, payload) {
         state.login_type = payload;

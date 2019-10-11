@@ -23,9 +23,7 @@
     </div>
 
     <div class="buttons">
-      <div v-if="isLoading" class="text-white">
-        Please wait while the transaction is deployed.
-      </div>
+      <div v-if="isLoading" class="text-white">Please wait while the transaction is deployed.</div>
       <div v-if="!isLoading && !isSuccess">
         <button class="btn btn-primary mr-4" @click="proceed">Submit</button>
         <button class="btn btn-outline-secondary" @click="$emit('cancel-add-funds')">Cancel</button>
@@ -43,6 +41,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { bytes, BN, Long, units } from "@zilliqa-js/util";
+import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
 
 export default {
   name: "AddFunds",
@@ -68,7 +67,6 @@ export default {
       this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
 
-
       let tx = this.zilliqa.transactions.new({
         version: VERSION,
         toAddr: this.address,
@@ -76,22 +74,24 @@ export default {
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
         data: JSON.stringify({
-            _tag: "AddFunds",
-            params: []
+          _tag: "AddFunds",
+          params: []
         })
       });
 
-      // Send a transaction to the network
-      tx = await this.zilliqa.blockchain.createTransaction(tx);
+      EventBus.$emit("sign-event", tx);
 
       this.isLoading = false;
-
+    }
+  },
+  async mounted() {
+    EventBus.$on("sign-success", async tx => {
       if (tx.id !== undefined && tx.receipt.success === true) {
         console.log(tx.receipt);
         this.tx = tx;
         this.isSuccess = true;
       }
-    }
+    });
   }
 };
 </script>

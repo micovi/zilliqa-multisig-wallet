@@ -66,7 +66,8 @@
       <br />
       <span class="text-white">{{ deployedWallet.contractId }}</span>
     </div>
-    <router-link class="btn btn-primary"
+    <router-link
+      class="btn btn-primary"
       :to="{name: 'wallet', params:{address: deployedWallet.contractId}}"
     >Go to wallet now</router-link>
   </success-screen>
@@ -88,12 +89,16 @@ export default {
   },
   data() {
     return {
-      owners: [],
+      owners: [
+        { address: "0x9641E9c1e7712db9A8a429fdB42553d03a141fCd" },
+        { address: "0xd90f2e538ce0df89c8273cad3b63ec44a3c4ed82" }
+      ],
       signatures: 2,
       gasPrice: 1000000000,
-      gasLimit: 5000,
+      gasLimit: 50000,
       isLoading: false,
       isDeployed: false,
+      zilliqa: null,
       deployedWallet: {}
     };
   },
@@ -107,15 +112,28 @@ export default {
   methods: {
     buildOwnersTree(list) {
       var nodes = {};
-      for (var i = 0, l; (l = list[i]); i++) {
-        list.splice(i, 1);
-        i--;
+
+      if (list[0] !== undefined) {
+        let address = list[0].address;
+
+        if (validation.isBech32(address)) {
+          address = fromBech32Address(address);
+        }
+
+        list.splice(0, 1);
         nodes = {
           constructor: "Cons",
           argtypes: ["ByStr20"],
-          arguments: [fromBech32Address(l.address), this.buildOwnersTree(list)]
+          arguments: [address, this.buildOwnersTree(list)]
+        };
+      } else {
+        nodes = {
+          constructor: "Nil",
+          argtypes: ["ByStr20"],
+          arguments: []
         };
       }
+
       return nodes;
     },
     signatureMinus() {
@@ -165,25 +183,21 @@ export default {
     },
     async proceed() {
       this.isLoading = true;
+
+      let ownersTrees = this.buildOwnersTree([...this.owners]);
+
       try {
         // validations
         if (this.owners.length <= 1) throw "You should add minimum 2 owners.";
         if (!this.gasPrice) throw "Gas Price should be set.";
         if (!this.gasLimit) throw "Gas Limit should be set.";
 
-        const zilliqa = new Zilliqa(this.network.url);
-
         const chainId = this.network.chainId; // chainId of the developer testnet
         const msgVersion = this.network.msgVersion; // current msgVersion
         const VERSION = bytes.pack(chainId, msgVersion);
 
-        // Keystore deploy
-        if (this.walletType === "keystore") {
-          zilliqa.wallet.addByPrivateKey(this.wallet.privateKey);
-        }
-
         // Get Minimum Gas Price from blockchain
-        const minGasPrice = await zilliqa.blockchain.getMinimumGasPrice();
+        const minGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
         const myGasPrice = new BN(this.gasPrice); // Gas Price that will be used by all transactions
         const isGasSufficient = myGasPrice.gte(new BN(minGasPrice.result)); // Checks if your gas price is less than the minimum gas price
 
@@ -660,29 +674,7 @@ end
             type: "Uint32",
             value: "0"
           },
-          {
-            vname: "owners_list",
-            type: "List ByStr20",
-            value: {
-              constructor: "Cons",
-              argtypes: ["ByStr20"],
-              arguments: [
-                "0x9641E9c1e7712db9A8a429fdB42553d03a141fCd",
-                {
-                  constructor: "Cons",
-                  argtypes: ["ByStr20"],
-                  arguments: [
-                    "0xd90f2e538ce0df89c8273cad3b63ec44a3c4ed82",
-                    {
-                      constructor: "Nil",
-                      argtypes: ["ByStr20"],
-                      arguments: []
-                    }
-                  ]
-                }
-              ]
-            }
-          },
+          owners_list,
           {
             vname: "required_signatures",
             type: "Uint32",
@@ -690,40 +682,18 @@ end
           }
         ];
 
-        // Instance of class Contract
-        const contract = zilliqa.contracts.new(contractCode, init);
-
-        // Deploy the contract
-        const [deployTx, contractData] = await contract.deploy({
+        const tx = this.zilliqa.transactions.new({
           version: VERSION,
-          gasPrice: myGasPrice,
-          gasLimit: Long.fromNumber(this.gasLimit)
+          toAddr: "0x0000000000000000000000000000000000000000",
+          amount: new BN(0),
+          gasPrice: myGasPrice, // in Qa
+          gasLimit: Long.fromNumber(this.gasLimit),
+          code: contractCode,
+          data: JSON.stringify(init).replace(/\\"/g, '"'),
+          signature: ""
         });
 
-        if (deployTx.receipt === undefined) {
-          throw "Deployment transaction could not be completed";
-        }
-
-        if (deployTx.receipt.success === false) {
-          throw `Deployment transaction failed with errors: ${
-            deployTx.receipt.errors[0]
-          }`;
-        } else {
-          this.deployedWallet = {
-            transId: deployTx.id,
-            contractId: contractData.address,
-            owners_list: this.owners,
-            signatures: this.signatures,
-            network: this.network.url
-          };
-
-          try {
-            this.$store.dispatch("wallets/addWallet", this.deployedWallet);
-            this.isDeployed = true;
-          } catch (error) {
-            throw error;
-          }
-        }
+        EventBus.$emit("sign-event", tx);
       } catch (error) {
         Swal.fire({
           type: "error",
@@ -733,6 +703,31 @@ end
         this.isLoading = false;
       }
     }
+  },
+  async mounted() {
+    this.zilliqa = new Zilliqa(this.network.url);
+
+    EventBus.$on("sign-success", async (tx) => {
+      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(tx.id);
+
+      let contractBech32 = toBech32Address(contractId.result);
+
+      this.deployedWallet = {
+        transId: tx.id,
+        contractId: contractBech32,
+        owners_list: this.owners,
+        signatures: this.signatures,
+        network: this.network.url
+      };
+
+      try {
+        this.$store.dispatch("wallets/addWallet", this.deployedWallet);
+        this.isDeployed = true;
+        this.isLoading = false;
+      } catch (error) {
+        throw error;
+      }
+    });
   }
 };
 </script>

@@ -42,7 +42,7 @@ import AddFunds from "@/components/AddFunds";
 import ContractActions from "@/components/Wallet/ContractActions";
 import ContractOwners from "@/components/Wallet/ContractOwners";
 import NewTransaction from "@/components/Wallet/NewTransaction";
-import { units, BN } from '@zilliqa-js/util';
+import { units, BN, validation } from '@zilliqa-js/util';
 
 export default {
   name: "Wallet",
@@ -98,17 +98,16 @@ export default {
     try {
       this.zilliqa = new Zilliqa(this.network.url);
 
-      this.zilliqa.wallet.addByPrivateKey(this.localWallet.privateKey);
-
       let address = this.$route.params.address;
 
-      if (isBech32(address)) {
+      if (validation.isBech32(address)) {
         this.bech32Address = address;
         this.address = fromBech32Address(address);
       } else {
         this.bech32Address = toBech32Address(address);
         this.address = address;
       }
+
 
       const contract = await this.zilliqa.blockchain.getSmartContractInit(
         this.address
@@ -131,7 +130,7 @@ export default {
           this.wallet.signatures = required_signatures.value;
         }
 
-        this.wallet.owners_list = this.getWalletOwnersList(this.address);
+        this.wallet.owners_list = this.getWalletOwnersList(toBech32Address(this.address));
       }
 
       const contractState = await this.zilliqa.blockchain.getSmartContractState(

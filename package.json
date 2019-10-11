@@ -9,6 +9,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@ledgerhq/hw-transport-u2f": "^4.72.1",
     "@zilliqa-js/crypto": "^0.7.5",
     "@zilliqa-js/util": "^0.7.1",
     "@zilliqa-js/zilliqa": "^0.8.0-alpha.0",
