@@ -38,7 +38,7 @@
           </div>
 
           <div class="footer d-flex justify-content-end">
-            <button class="btn btn-link text-danger" @click="$emit('close-login')">Cancel</button>
+            <button class="btn btn-link text-danger" @click="$emit('close-sign')">Cancel</button>
             <button
               class="btn btn-primary"
               @click="tryLedgerLogin"

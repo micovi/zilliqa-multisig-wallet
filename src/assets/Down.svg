@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="6.645" height="8" viewBox="0 0 6.645 8">
+  <g id="left-arrow" transform="translate(-41.674 8) rotate(-90)">
+    <g id="Group_60" data-name="Group 60" transform="translate(0 41.674)">
+      <path id="Path_40" data-name="Path 40" d="M7.55,44.369l.012,0H2.209l1.683-1.687a.442.442,0,0,0,0-.621L3.631,41.8a.438.438,0,0,0-.618,0L.127,44.686a.441.441,0,0,0,0,.62l2.885,2.885a.438.438,0,0,0,.618,0l.262-.262a.433.433,0,0,0,.128-.309.42.42,0,0,0-.128-.3l-1.7-1.7H7.556A.453.453,0,0,0,8,45.172V44.8A.445.445,0,0,0,7.55,44.369Z" transform="translate(0 -41.674)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

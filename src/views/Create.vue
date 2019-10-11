@@ -89,10 +89,7 @@ export default {
   },
   data() {
     return {
-      owners: [
-        { address: "0x9641E9c1e7712db9A8a429fdB42553d03a141fCd" },
-        { address: "0xd90f2e538ce0df89c8273cad3b63ec44a3c4ed82" }
-      ],
+      owners: [],
       signatures: 2,
       gasPrice: 1000000000,
       gasLimit: 50000,

@@ -30,7 +30,9 @@
       <div v-if="isLoading" class="text-white">Please wait while the transaction is deployed.</div>
       <div v-if="!isLoading && !isSuccess">
         <button class="btn btn-primary mr-4" @click="proceed">Submit</button>
-        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">Cancel</button>
+        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">
+          Cancel
+        </button>
       </div>
 
       <div class="text-success mt-5" v-if="isSuccess">
@@ -43,27 +45,27 @@
 </template>
 
 <script>
-import { validation, units, bytes, BN, Long } from "@zilliqa-js/util";
-import { fromBech32Address } from "@zilliqa-js/crypto";
-import { mapGetters } from "vuex";
+import { validation, units, bytes, BN, Long } from '@zilliqa-js/util';
+import { fromBech32Address } from '@zilliqa-js/crypto';
+import { mapGetters } from 'vuex';
 
 export default {
-  name: "NewTransaction",
+  name: 'NewTransaction',
   data() {
     return {
       destination: null,
       amount: 0,
       gasPrice: 1000000000,
-      tag: "",
+      tag: '',
       gasLimit: 50000,
       isLoading: false,
       isSuccess: false
     };
   },
-  props: ["zilliqa", "address"],
+  props: ['zilliqa', 'address'],
   computed: {
-    ...mapGetters("general", {
-      network: "selectedNetwork"
+    ...mapGetters('general', {
+      network: 'selectedNetwork'
     })
   },
   methods: {
@@ -79,90 +81,43 @@ export default {
 
       let amount = units.toQa(this.amount, units.Units.Zil);
 
-      const contract = this.zilliqa.contracts.at(this.address);
-
-      let tx = await contract.call(
-        "SubmitTransaction",
-        [
-          {
-            vname: "recipient",
-            type: "ByStr20",
-            value: destination
-          },
-          { vname: "amount", type: "Uint128", value: amount },
-          { vname: "tag", type: "String", value: this.tag }
-        ],
-        {
-          version: VERSION,
-          amount: new BN(units.toQa(this.amount, units.Units.Zil)),
-          gasPrice: new BN(this.gasPrice),
-          gasLimit: Long.fromNumber(this.gasLimit)
-        }
-      );
-
-      /* let tx = this.zilliqa.transactions.new({
+      let tx = this.zilliqa.transactions.new({
         version: VERSION,
         toAddr: this.address,
-        amount: new BN(units.toQa(this.amount, units.Units.Zil)),
+        amount: new BN(0),
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
-        data: JSON.stringify({
-          _tag: "SubmitTransaction",
-          params: [
+        data: JSON.stringify([
             {
               vname: "recipient",
               type: "ByStr20",
               value: `${destination}`
             },
-            {
-              vname: "amount",
-              type: "Uint128",
-              value: `${amount}`
-            },
-            {
-              vname: "tag",
-              vname: "String",
-              value: `${this.tag}`
-            }
+            { vname: "amount", type: "Uint128", value: `${amount}` },
+            { vname: "tag", type: "String", value: `${this.tag}` }
           ]
-        })
-      }); */
+        )
+      });
 
-      /*  let ddd = {
-        id: 1,
-        jsonrpc: "2.0",
-        method: "CreateTransaction",
-        params: [
-          {
-            version: 21823489,
-            toAddr: "0xDC173497d2E62fECeac9570db440126EE3902CeA",
-            nonce: 11,
-            pubKey:
-              "028351704d7f881138b6f7b1330464a9b92728ae30914e585fee5fa33027041149",
-            amount: "13000000000000",
-            gasPrice: "1000000000",
-            gasLimit: "50000",
-            code: "",
-            data:
-              '{"_tag":"SubmitTransaction","params":[{"vname":"recipient","type":"ByStr20","value":"0x9641E9c1e7712db9A8a429fdB42553d03a141fCd"},{"vname":"amount","type":"Uint128","value":"bd2cc61d000"},{"vname":"String","value":""}]}',
-            signature:
-              "6851a24a1f698f32acc2b65244027b18721794392f0e5a4c2349bb169bb8ac0da427f6f914f224dcf081b17c97889fc36d53d315c0ecd7d8c2f7dcdb9641a1c7",
-            priority: false
-          }
-        ]
-      };
- */
-      // Send a transaction to the network
-      tx = await this.zilliqa.blockchain.createTransaction(tx);
+      console.log(tx);
+
+      EventBus.$emit('sign-event', tx);
 
       this.isLoading = false;
-
+    }
+  },
+  async mounted() {
+    EventBus.$on("sign-success", async tx => {
       if (tx.id !== undefined && tx.receipt.success === true) {
         console.log(tx.receipt);
         this.tx = tx;
         this.isSuccess = true;
       }
-    }
+    });
+
+    EventBus.$on("sign-error", async tx => {
+      console.log(tx);
+    });
   }
 };
 </script>

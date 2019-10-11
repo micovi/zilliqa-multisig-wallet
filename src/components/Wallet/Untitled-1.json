@@ -1,0 +1,73 @@
+{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "result": [
+        {
+            "type": "Uint32",
+            "value": "0",
+            "vname": "_scilla_version"
+        },
+        {
+            "type": "List ByStr20",
+            "value": {
+                "argtypes": [
+                    "ByStr20"
+                ],
+                "arguments": [
+                    "0x9641E9c1e7712db9A8a429fdB42553d03a141fCd",
+                    {
+                        "argtypes": [
+                            "ByStr20"
+                        ],
+                        "arguments": [
+                            "0xd90f2e538ce0df89c8273cad3b63ec44a3c4ed82",
+                            {
+                                "argtypes": [
+                                    "ByStr20"
+                                ],
+                                "arguments": [
+                                    "0x546C033Dd2e7F2E05013E4bfcB72E85820DFDE0C",
+                                    {
+                                        "argtypes": [
+                                            "ByStr20"
+                                        ],
+                                        "arguments": [
+                                            "0x858957d71A479491256F8aEa962c89A565C291BA",
+                                            {
+                                                "argtypes": [
+                                                    "ByStr20"
+                                                ],
+                                                "arguments": [],
+                                                "constructor": "Nil"
+                                            }
+                                        ],
+                                        "constructor": "Cons"
+                                    }
+                                ],
+                                "constructor": "Cons"
+                            }
+                        ],
+                        "constructor": "Cons"
+                    }
+                ],
+                "constructor": "Cons"
+            },
+            "vname": "owners_list"
+        },
+        {
+            "type": "Uint32",
+            "value": "2",
+            "vname": "required_signatures"
+        },
+        {
+            "type": "BNum",
+            "value": "826631",
+            "vname": "_creation_block"
+        },
+        {
+            "type": "ByStr20",
+            "value": "0x4ffc131ce3f319559864981bcc53d5b61f40ed2c",
+            "vname": "_this_address"
+        }
+    ]
+}
