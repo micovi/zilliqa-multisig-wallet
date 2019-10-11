@@ -87,19 +87,19 @@ export default {
         amount: new BN(0),
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
-        data: JSON.stringify([
+        data: JSON.stringify({
+          _tag: 'SubmitTransaction',
+          params: [
             {
-              vname: "recipient",
-              type: "ByStr20",
+              vname: 'recipient',
+              type: 'ByStr20',
               value: `${destination}`
             },
-            { vname: "amount", type: "Uint128", value: `${amount}` },
-            { vname: "tag", type: "String", value: `${this.tag}` }
+            { vname: 'amount', type: 'Uint128', value: `${amount}` },
+            { vname: 'tag', type: 'String', value: `${this.tag}` }
           ]
-        )
+        })
       });
-
-      console.log(tx);
 
       EventBus.$emit('sign-event', tx);
 
@@ -107,7 +107,7 @@ export default {
     }
   },
   async mounted() {
-    EventBus.$on("sign-success", async tx => {
+    EventBus.$on('sign-success', async tx => {
       if (tx.id !== undefined && tx.receipt.success === true) {
         console.log(tx.receipt);
         this.tx = tx;
@@ -115,7 +115,7 @@ export default {
       }
     });
 
-    EventBus.$on("sign-error", async tx => {
+    EventBus.$on('sign-error', async tx => {
       console.log(tx);
     });
   }

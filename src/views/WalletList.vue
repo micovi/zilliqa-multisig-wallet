@@ -8,21 +8,23 @@
         :key="wallet.contractId"
         :zilliqa="zilliqa"
         :wallet="wallet"
+        v-on:pin-wallet="pinWallet"
       ></wallet-card>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex';
+import Swal from 'sweetalert2';
 
-import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { Zilliqa } from '@zilliqa-js/zilliqa';
 
 // @ is an alias to /src
-import WalletCard from "@/components/WalletCard";
+import WalletCard from '@/components/WalletCard';
 
 export default {
-  name: "WalletsList",
+  name: 'WalletsList',
   data() {
     return {
       zilliqa: null
@@ -32,12 +34,21 @@ export default {
     WalletCard
   },
   computed: {
-    ...mapGetters("wallets", {
-      wallets: "wallets"
+    ...mapGetters('wallets', {
+      wallets: 'wallets'
     }),
-    ...mapGetters("general", {
-      network: "selectedNetwork"
+    ...mapGetters('general', {
+      network: 'selectedNetwork'
     })
+  },
+  methods: {
+    pinWallet(payload) {
+      this.$store.dispatch('wallets/addPin', payload);
+      Swal.fire({
+        type: 'success',
+        text: 'Wallet has been pinned'
+      });
+    }
   },
   beforeMount() {
     this.zilliqa = new Zilliqa(this.network.url);

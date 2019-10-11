@@ -5,7 +5,7 @@
 
     <div class="wallet-details mt-5">
       <div class="transactions-container" v-if="!addFunds && !newTransaction">
-        <transactions-list></transactions-list>
+        <transactions-list :address="this.$route.params.address"></transactions-list>
       </div>
       <add-funds
         :bech32="bech32Address"
@@ -136,12 +136,14 @@ export default {
       const contractState = await this.zilliqa.blockchain.getSmartContractState(
         this.address
       );
-
+      
       if (contractState.result !== undefined) {
         this.wallet.balance = units.fromQa(new BN(contractState.result._balance), units.Units.Zil);
       } else {
         throw contractState.error;
       }
+
+      this.transactions = contractState.transactions;
     } catch (error) {
       console.warn(error);
       Swal.fire({

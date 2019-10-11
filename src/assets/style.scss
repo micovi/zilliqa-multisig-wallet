@@ -555,3 +555,93 @@ p {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
+
+.wallet-card {
+  position: relative;
+  .actions {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    display: flex;
+
+    .action {
+      svg {
+        path {
+          fill: #5a728d;
+        }
+      }
+
+      &:hover {
+        svg {
+          path {
+            fill: $light;
+          }
+        }
+      }
+    }
+
+    .pallete {
+      margin-right: 0.5rem;
+    }
+
+    .pin.isPinned {
+      svg path {
+        fill: #fff;
+      }
+    }
+  }
+}
+
+.transactions-list {
+  .transaction {
+    border-radius: 6px;
+    background-color: $light;
+    display: flex;
+    padding: 1rem;
+    font-size: 0.85rem;
+
+    .item:not(:last-of-type) {
+      margin-right: 0.5rem;
+      border-right: 1px solid lighten($gray, 40);
+      padding-right: 0.5rem;
+    }
+
+    .transfer {
+      .details {
+        display: flex;
+      }
+    }
+
+    .actions {
+      display: flex;
+      flex-grow: 1;
+      justify-content: space-between;
+      align-items: center;
+
+      .secondary-actions {
+        display: flex;
+        .unsign {
+          border-radius: 4px;
+          background-color: #edc557;
+          width: 26px;
+          height: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .sign {
+          border-radius: 4px;
+          background-color: #5fafff;
+          width: 26px;
+          height: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

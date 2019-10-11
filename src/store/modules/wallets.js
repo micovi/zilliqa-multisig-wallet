@@ -45,12 +45,22 @@ const actions = {
 
         commit('addWallet', payload);
     },
+    addPin({commit, state}, payload) {
+        const wallet = state.wallets.findIndex(wallet => wallet.contractId === payload);
+
+        if(wallet !== undefined) {
+            commit('pinWallet', wallet);
+        }
+    }
 };
 
 
 const mutations = {
     addWallet(state, payload) {
         state.wallets.push({ ...payload, pinned: false, color: 'default' });
+    },
+    pinWallet(state, index) {
+        state.wallets[index].pinned = !state.wallets[index].pinned;
     },
     clear(state) {
         state.wallets = [];
