@@ -61,6 +61,8 @@ export default {
 
     const state = await zilliqa.blockchain.getSmartContractState(address);
 
+    console.log(state.result);
+
     if (state.result.transactions !== undefined) {
       const transactions = Object.keys(state.result.transactions).map(
         function(key) {
