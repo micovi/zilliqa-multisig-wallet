@@ -5,7 +5,7 @@
 
     <div class="wallet-details mt-5">
       <div class="transactions-container" v-if="!addFunds && !newTransaction">
-        <transactions-list :address="this.$route.params.address"></transactions-list>
+        <transactions-list :address="this.$route.params.address" :signatures_need="this.wallet.signatures" :network="network"></transactions-list>
       </div>
       <add-funds
         :bech32="bech32Address"

@@ -1,4 +1,4 @@
-@import '@/assets/vars';
+@import "@/assets/vars";
 
 .swal2-popup {
   background-color: $dark !important;
@@ -11,7 +11,7 @@
   }
 }
 
-@import '@/../node_modules/bootstrap/scss/bootstrap';
+@import "@/../node_modules/bootstrap/scss/bootstrap";
 
 html,
 body {
@@ -313,7 +313,7 @@ p {
 
         z-index: 2;
         background-color: transparentize(
-          lighten(map-get($theme-colors, 'danger'), 10),
+          lighten(map-get($theme-colors, "danger"), 10),
           0.2
         );
         align-items: center;
@@ -344,7 +344,7 @@ p {
 
       &:hover {
         cursor: pointer;
-        background-color: lighten(map-get($theme-colors, 'success'), 40);
+        background-color: lighten(map-get($theme-colors, "success"), 40);
       }
     }
   }
@@ -618,14 +618,22 @@ p {
       text-overflow: ellipsis;
     }
 
-    .actions {
-      display: flex;
+    .amount {
+      border-right: 0 !important;
       flex-grow: 1;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       justify-content: space-between;
       align-items: center;
 
       .secondary-actions {
         display: flex;
+        justify-content: flex-end;
+        padding-right: 1rem;
+        
         .unsign {
           border-radius: 4px;
           background-color: #edc557;
@@ -646,6 +654,38 @@ p {
           align-items: center;
           justify-content: center;
           cursor: pointer;
+        }
+      }
+      .main-actions {
+        .action {
+          border-radius: 4px;
+          background-color: #5fafff;
+          height: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: 700;
+          color: $dark;
+          font-size: 0.75rem;
+          min-width: 90px;
+
+          img {
+            height: 0.7rem;
+            margin-right:0.25rem;
+          }
+
+          &.execute {
+            background-color: #3ee0ae;
+          }
+
+          &.sign {
+            background-color: #5fafff;
+          }
+
+          &.unsign {
+            background-color: #edc557;
+          }
         }
       }
     }

@@ -7,76 +7,46 @@
         <span>All Transactions</span>
       </div>
     </div>
-    <div v-for="(trans,index) in transactions" :key="index" class="content transactions-list">
-      <div class="transaction">
-        <div class="item">
-          <div class="font-weight-bold">Tx ID.</div>
-          
-        </div>
-        <div class="item transfer">
-          <div class="font-weight-bold">Transfer</div>
-          <div class="details d-flex align-items-center">
-            <div class="mr-2 address-text">{{ address }}</div>
-            <i class="fas fa-arrow-right"></i>
-            <div class="address-text">{{ trans.arguments[0] }}</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="font-weight-bold">Amount</div>
-          <div>12,234 ZIL</div>
-        </div>
-        <div class="actions">
-          <div class="secondary-actions">
-            <div class="unsign">
-              <img src="@/assets/Unsign.svg" />
-            </div>
-            <div class="sign">
-              <img src="@/assets/Sign.svg" />
-            </div>
-          </div>
-          <div class="signatures font-weight-bold">2/5</div>
-
-          <div class="main-action">
-            <div class="unsign">
-              <img src="@/assets/Unsign.svg" />
-            </div>
-            <div class="sign">
-              <img src="@/assets/Sign.svg" />
-            </div>
-            <div class="execute">
-              <img src="@/assets/Execute.svg" />
-            </div>
-          </div>
-        </div>
-      </div>
+    <div v-for="(transaction,index) in transactions" :key="index" class="content transactions-list">
+      <Transaction
+        :transaction="transaction"
+        :wallet="address"
+        :owners="owners"
+        :signature_counts="signature_counts"
+        :signatures="signatures"
+        :signatures_need="signatures_need"
+        :network="network"
+        :zilliqa="zilliqa"
+      />
     </div>
   </div>
 
-  <div class="nothing" v-else>
-    No transactions found.
-  </div>
+  <div class="nothing" v-else>No transactions found.</div>
 </template>
 
 <script>
-import Swal from 'sweetalert2';
-import { mapGetters } from 'vuex';
+import Swal from "sweetalert2";
+import { mapGetters } from "vuex";
 
-import { Zilliqa } from '@zilliqa-js/zilliqa';
-import { validation } from '@zilliqa-js/util';
-import { toBech32Address, fromBech32Address } from '@zilliqa-js/crypto';
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { validation } from "@zilliqa-js/util";
+import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
+
+import Transaction from "@/components/Transaction.vue";
 
 export default {
-  name: 'TransactionsList',
-  props: ['address'],
+  name: "TransactionsList",
+  props: ["address", "signatures_need", "network"],
+  components: {
+    Transaction
+  },
   data() {
     return {
-      transactions: []
+      transactions: [],
+      owners: [],
+      signature_counts: {},
+      signatures: []
     };
-  },
-  computed: {
-    ...mapGetters('general', {
-      network: 'selectedNetwork'
-    })
   },
   async mounted() {
     let address = this.address;
@@ -85,13 +55,31 @@ export default {
       address = fromBech32Address(address);
     }
 
+
     const zilliqa = new Zilliqa(this.network.url);
+    this.zilliqa = zilliqa;
 
     const state = await zilliqa.blockchain.getSmartContractState(address);
-    console.log(state);
-    if(state.result.transactions !== undefined) {
-      this.transactions = Object.values(state.result.transactions);
-    } 
+
+    if (state.result.transactions !== undefined) {
+      const transactions = Object.keys(state.result.transactions).map(
+        function(key) {
+          return {
+            key: key,
+            destination: state.result.transactions[key].arguments[0],
+            amount: state.result.transactions[key].arguments[1],
+            third: state.result.transactions[key].arguments[2],
+            signatures: state.result.signatures[key],
+            signatures_count: state.result.signature_counts[key]
+          };
+        }
+      );
+
+      this.transactions = transactions;
+      this.owners = Object.keys(state.result.owners);
+      this.signature_counts = state.result.signature_counts;
+      this.signatures = Object.values(state.result.signatures);
+    }
   }
 };
 </script>
