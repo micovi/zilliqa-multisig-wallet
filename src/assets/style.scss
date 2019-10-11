@@ -612,6 +612,12 @@ p {
       }
     }
 
+    .address-text {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .actions {
       display: flex;
       flex-grow: 1;
