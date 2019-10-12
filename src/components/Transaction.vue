@@ -17,10 +17,7 @@
     </div>
     <div class="actions">
       <div>
-        <div
-          class="secondary-actions"
-          v-if="canExecute"
-        >
+        <div class="secondary-actions" v-if="canExecute">
           <div class="unsign" v-if="hasSigned" @click="onUnsign">
             <img src="@/assets/Unsign.svg" />
           </div>
@@ -182,8 +179,22 @@ export default {
   mounted() {
     let vm = this;
     EventBus.$on("sign-success", async tx => {
-      if (tx.id !== undefined && tx.receipt.success === true) {
-        window.location.reload();
+      if (tx.ledger === true) {
+        Swal.fire({
+          type: "success",
+          html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.tx}?network=testnet">${tx.tx}</a>`
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        if (tx.id !== undefined && tx.receipt.success === true) {
+          Swal.fire({
+            type: "success",
+            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+          }).then(() => {
+            window.location.reload();
+          });
+        }
       }
     });
     EventBus.$on("sign-error", async err => {

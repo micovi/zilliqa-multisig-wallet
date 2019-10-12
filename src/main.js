@@ -10,5 +10,13 @@ window.EventBus = new Vue();
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
+  watch: {
+    '$route': function () {
+      let menu = document.querySelector("#nav"); // Using a class instead, see note below.
+      if (menu !== undefined && menu !== null) {
+        menu.classList.remove("active");
+      }
+    }
+  }
 }).$mount('#app')

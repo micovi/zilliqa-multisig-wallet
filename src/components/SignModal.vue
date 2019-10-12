@@ -9,11 +9,11 @@
 
           <div class="modal-body p-0">
             <div v-if="loginType === 'ledger'">
-              <div class="loading" v-if="loading">
+              <div class="loading">
                 <ol>
                   <li>Connect and Unlock Ledger Device to computer</li>
                   <li>Open Zilliqa App</li>
-                  <li>Confirm actions on Ledger Device</li>
+                  <li>Click Sign with Ledger and follow instructions</li>
                 </ol>
               </div>
             </div>
@@ -34,21 +34,28 @@
                 {{ loading }}
               </div>
             </div>
+
+            <div class="my-4" v-if="success">
+              <div class="icon text-center">
+                <p>{{ success }}</p>
+                <viewblock-link :txid="txId" :network="network" />
+              </div>
+            </div>
             <div class="alert alert-danger my-2" v-if="error">{{ error }}</div>
           </div>
 
           <div class="footer d-flex justify-content-end">
             <button class="btn btn-link text-danger" @click="$emit('close-sign')">Cancel</button>
-            <button class="btn btn-primary" @click="tryLedgerLogin" v-if="loginType === 'ledger'">
-              Retry Connection
-            </button>
+            <button
+              class="btn btn-primary"
+              @click="tryLedgerSign"
+              v-if="loginType === 'ledger' && loading === false && success === false"
+            >Sign with Ledger</button>
             <button
               class="btn btn-primary"
               @click="tryKeystoreLogin"
-              v-if="loginType === 'keystore'"
-            >
-              Sign
-            </button>
+              v-if="loginType === 'keystore' && loading === false && success === false"
+            >Sign</button>
           </div>
         </div>
       </div>
@@ -57,53 +64,142 @@
 </template>
 
 <script>
-import Ledger from '@/utils/zil-ledger-interface';
-import { getAddressFromPublicKey, fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
-import TransportU2F from '@ledgerhq/hw-transport-u2f';
-import { Zilliqa } from '@zilliqa-js/zilliqa';
-import { mapGetters } from 'vuex';
+import Ledger from "@/utils/zil-ledger-interface";
+import {
+  getAddressFromPublicKey,
+  fromBech32Address,
+  toBech32Address
+} from "@zilliqa-js/crypto";
+import { BN, units, Long } from "@zilliqa-js/util";
+// import TransportU2F from '@ledgerhq/hw-transport-u2f';
+// import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import { Zilliqa } from "@zilliqa-js/zilliqa";
+import { mapGetters } from "vuex";
+import ViewblockLink from "@/components/ViewblockLink";
 
 export default {
-  name: 'SignModal',
-  props: ['tx'],
+  name: "SignModal",
+  props: ["tx"],
+  components: {
+    ViewblockLink
+  },
   data() {
     return {
       file: null,
       selected: undefined,
-      passphrase: '',
+      passphrase: "",
       error: false,
       loading: false,
+      success: false,
+      txId: "",
       zilliqa: undefined
     };
   },
   computed: {
-    ...mapGetters('general', {
-      network: 'selectedNetwork',
-      loginType: 'walletType',
-      keystore: 'getKeystore'
+    ...mapGetters("general", {
+      network: "selectedNetwork",
+      loginType: "walletType",
+      keystore: "getKeystore"
     })
   },
   methods: {
-    async tryLedgerLogin() {
+    async tryLedgerSign() {
       this.errors = false;
       this.loading = false;
+      if (this.zilliqa === undefined) {
+        this.zilliqa = new Zilliqa(this.network.url);
+      }
+
       try {
-        this.loading = 'Trying to create U2F transport.';
-        const transport = await TransportU2F.create();
-        this.loading = 'Trying to initialize Ledger Transport';
+        this.loading = "Trying to create U2F transport.";
+        const transport = await TransportWebAuthn.create();
+        this.loading = "Trying to initialize Ledger Transport";
         const zil = new Ledger(transport);
-        this.loading = 'Please confirm action on Ledger Device';
-        const address = await zil.getPublicAddress();
+        this.loading = "Please confirm Public Key generation on Ledger Device";
+        // const address = await zil.signTxn(0, this.tx.txParams);
+        const pubkey = await zil.getPublicKey(0);
 
-        this.address = address.pubAddr;
-        this.loading = false;
+        const address = getAddressFromPublicKey(pubkey.publicKey);
 
-        EventBus.$emit('login-success', address);
+        let balance = await this.zilliqa.blockchain.getBalance(address);
 
-        if (this.address !== null) {
-          this.$emit('close-login');
+        if (balance.error && balance.error.code === -5) {
+          throw new Error("Account has no balance.");
+        } else {
+          let nonce = parseInt(balance.result.nonce) + 1;
+
+          this.loading = "Please Sign the Tx on Ledger Device";
+
+          const oldp = this.tx.txParams;
+          console.log("old", oldp);
+
+          const newP = {
+            version: oldp.version,
+            toAddr: oldp.toAddr,
+            amount: oldp.amount,
+            code: oldp.code,
+            data: oldp.data,
+            gasLimit: oldp.gasLimit,
+            gasPrice: oldp.gasPrice,
+            nonce: nonce,
+            pubKey: pubkey.publicKey,
+            signature: ""
+          };
+
+          const signed = await zil.signTxn(0, newP);
+          const signature = signed.sig;
+
+          const newtx = {
+            id: "1",
+            jsonrpc: "2.0",
+            method: "CreateTransaction",
+            params: [
+              {
+                toAddr: oldp.toAddr,
+                amount: oldp.amount.toString(),
+                code: oldp.code,
+                data: oldp.data,
+                gasLimit: oldp.gasLimit.toString(),
+                gasPrice: oldp.gasPrice.toString(),
+                nonce: nonce,
+                pubKey: pubkey.publicKey,
+                signature: signature,
+                version: oldp.version,
+                priority: false
+              }
+            ]
+          };
+
+          const response = await fetch(this.network.url, {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newtx) // body data type must match "Content-Type" header
+          });
+
+          let data = await response.json();
+
+          if (data.result.TranID !== undefined) {
+            this.loading = false;
+            EventBus.$emit("sign-success", {
+              ledger: true,
+              tx: data.result.TranID,
+              id: data.result.TranID
+            });
+            $emit('close-sign');
+          }
+
+          if(data.result.error !== undefined) {
+            throw new Error(data.result.error.message);
+          }
         }
       } catch (error) {
+        this.loading = false;
         this.error = error.message;
       }
     },
@@ -112,28 +208,34 @@ export default {
       this.login = false;
 
       try {
-        this.loading = 'Trying to decrypt keystore file and access wallet...';
+        this.loading = "Trying to decrypt keystore file and access wallet...";
 
         if (this.zilliqa === undefined) {
           this.zilliqa = new Zilliqa(this.network.url);
         }
 
-        if (this.passphrase === '' || this.passphrase === undefined) {
-          throw new Error('Please enter passphrase.');
+        if (this.passphrase === "" || this.passphrase === undefined) {
+          throw new Error("Please enter passphrase.");
         }
 
-        const address = await this.zilliqa.wallet.addByKeystore(this.keystore, this.passphrase);
+        const address = await this.zilliqa.wallet.addByKeystore(
+          this.keystore,
+          this.passphrase
+        );
 
-        console.log(this.tx);
+        this.loading = "Trying to Sign and send transaction...";
 
-        this.loading = 'Trying to Sign and Deploy using Keystore Wallet...';
+        const signedTx = await this.zilliqa.blockchain.createTransaction(
+          this.tx
+        );
 
-        const signedTx = await this.zilliqa.blockchain.createTransaction(this.tx);
-
-        if (signedTx.receipt !== undefined && signedTx.receipt.success !== undefined) {
-          EventBus.$emit('sign-success', signedTx);
+        if (
+          signedTx.receipt !== undefined &&
+          signedTx.receipt.success !== undefined
+        ) {
+          EventBus.$emit("sign-success", signedTx);
         } else {
-          EventBus.$emit('sign-error', signedTx);
+          EventBus.$emit("sign-error", signedTx);
         }
         this.loading = false;
       } catch (error) {
@@ -142,8 +244,6 @@ export default {
       }
     }
   },
-  async mounted() {
-    console.log(this.tx);
-  }
+  async mounted() {}
 };
 </script>

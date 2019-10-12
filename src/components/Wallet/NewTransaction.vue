@@ -1,5 +1,5 @@
 <template>
-  <div class="add-funds-form">
+  <div class="add-funds-form" v-if="!isSuccess">
     <h2 class="subtitle mb-5">New Transaction</h2>
 
     <div class="big-form mb-5">
@@ -30,42 +30,47 @@
       <div v-if="isLoading" class="text-white">Please wait while the transaction is deployed.</div>
       <div v-if="!isLoading && !isSuccess">
         <button class="btn btn-primary mr-4" @click="proceed">Submit</button>
-        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">
-          Cancel
-        </button>
-      </div>
-
-      <div class="text-success mt-5" v-if="isSuccess">
-        Transaction has been successfully deployed.
-        <br />
-        {{ tx.id }}
+        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">Cancel</button>
       </div>
     </div>
   </div>
+  <success-screen v-else>
+    <div class="subtitle text-primary mb-5">
+      Transaction has been successfully generated:
+      <br />
+      <viewblock-link :txid="tx.id" :network="network" />
+    </div>
+  </success-screen>
 </template>
 
 <script>
-import { validation, units, bytes, BN, Long } from '@zilliqa-js/util';
-import { fromBech32Address } from '@zilliqa-js/crypto';
-import { mapGetters } from 'vuex';
+import { validation, units, bytes, BN, Long } from "@zilliqa-js/util";
+import { fromBech32Address } from "@zilliqa-js/crypto";
+import { mapGetters } from "vuex";
+import SuccessScreen from "@/components/SuccessScreen";
+import ViewblockLink from "@/components/ViewblockLink";
 
 export default {
-  name: 'NewTransaction',
+  name: "NewTransaction",
   data() {
     return {
       destination: null,
       amount: 0,
       gasPrice: 1000000000,
-      tag: '',
+      tag: "",
       gasLimit: 50000,
       isLoading: false,
       isSuccess: false
     };
   },
-  props: ['zilliqa', 'address'],
+  components: {
+    SuccessScreen,
+    ViewblockLink
+  },
+  props: ["zilliqa", "address"],
   computed: {
-    ...mapGetters('general', {
-      network: 'selectedNetwork'
+    ...mapGetters("general", {
+      network: "selectedNetwork"
     })
   },
   methods: {
@@ -88,26 +93,26 @@ export default {
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
         data: JSON.stringify({
-          _tag: 'SubmitTransaction',
+          _tag: "SubmitTransaction",
           params: [
             {
-              vname: 'recipient',
-              type: 'ByStr20',
+              vname: "recipient",
+              type: "ByStr20",
               value: `${destination}`
             },
-            { vname: 'amount', type: 'Uint128', value: `${amount}` },
-            { vname: 'tag', type: 'String', value: `${this.tag}` }
+            { vname: "amount", type: "Uint128", value: `${amount}` },
+            { vname: "tag", type: "String", value: `${this.tag}` }
           ]
         })
       });
 
-      EventBus.$emit('sign-event', tx);
+      EventBus.$emit("sign-event", tx);
 
       this.isLoading = false;
     }
   },
   async mounted() {
-    EventBus.$on('sign-success', async tx => {
+    EventBus.$on("sign-success", async tx => {
       if (tx.id !== undefined && tx.receipt.success === true) {
         console.log(tx.receipt);
         this.tx = tx;
@@ -115,7 +120,7 @@ export default {
       }
     });
 
-    EventBus.$on('sign-error', async tx => {
+    EventBus.$on("sign-error", async tx => {
       console.log(tx);
     });
   }

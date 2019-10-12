@@ -1,7 +1,7 @@
 <template>
   <div id="networkSelector">
     <div class="logout-button" v-if="isLogged">
-      <a @click="logout">Logout</a>
+      <a href="#" @click="logout">Logout</a>
     </div>
     <div class="dropdown">
       <div class="toggle">

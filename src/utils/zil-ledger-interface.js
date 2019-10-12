@@ -116,7 +116,7 @@ class LedgerInterface {
         const message = JSON.stringify({ "Encoded transaction": txnBytes.toString('hex') }, null, 2);
         console.log(message);
 
-        const STREAM_LEN = 128; // Stream in batches of STREAM_LEN bytes each.
+        const STREAM_LEN = 200; // Stream in batches of STREAM_LEN bytes each.
         var txn1Bytes;
         if (txnBytes.length > STREAM_LEN) {
             txn1Bytes = txnBytes.slice(0, STREAM_LEN);
@@ -136,6 +136,7 @@ class LedgerInterface {
         // 3. 4 bytes for txn1SizeBytes (number of bytes being sent now).
         // 4. txn1Bytes of actual data.
         const payload = Buffer.concat([indexBytes, hostBytesLeftBytes, txn1SizeBytes, txn1Bytes]);
+
 
         let transport = this.transport;
         return transport
@@ -169,6 +170,8 @@ class LedgerInterface {
             })
             .then(result => {
                 return { sig: (result.toString('hex').slice(0, SigByteLen * 2)) };
+            }).catch(function(err){
+                console.log(err);
             });
 
     }

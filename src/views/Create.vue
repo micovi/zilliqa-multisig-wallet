@@ -103,6 +103,7 @@ export default {
     ...mapGetters("general", {
       network: "selectedNetwork",
       walletType: "walletType",
+      personalAddress: "personalAddress",
       wallet: "wallet"
     })
   },
@@ -701,11 +702,20 @@ end
       }
     }
   },
+  beforeMount() {
+    this.owners.push({ address: toBech32Address(this.personalAddress) });
+  },
   async mounted() {
     this.zilliqa = new Zilliqa(this.network.url);
 
-    EventBus.$on("sign-success", async (tx) => {
-      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(tx.id);
+    EventBus.$on("sign-success", async tx => {
+
+      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
+        tx.id
+      );
+
+      this.isDeployed = true;
+      this.isLoading = false;
 
       let contractBech32 = toBech32Address(contractId.result);
 
@@ -719,8 +729,6 @@ end
 
       try {
         this.$store.dispatch("wallets/addWallet", this.deployedWallet);
-        this.isDeployed = true;
-        this.isLoading = false;
       } catch (error) {
         throw error;
       }

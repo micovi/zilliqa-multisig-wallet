@@ -87,7 +87,7 @@ export default {
       this.addFunds = false;
     },
     onNewTransaction() {
-      this.addFounds = false;
+      this.addFunds = false;
       this.newTransaction = true;
     },
     onCancelNewTransaction() {

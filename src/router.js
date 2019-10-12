@@ -7,8 +7,6 @@ import Import from './views/Import.vue'
 import WalletList from './views/WalletList.vue'
 import Wallet from './views/Wallet.vue'
 import Dashboard from './views/Dashboard.vue'
-import NewTransaction from './views/NewTransaction.vue'
-import AddFounds from './views/AddFounds.vue'
 import InfoPage from './views/InfoPage.vue'
 
 Vue.use(Router)
@@ -49,16 +47,6 @@ export default new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
-    },
-    {
-      path: '/new-transaction',
-      name: 'new-transaction',
-      component: NewTransaction
-    },
-    {
-      path: '/add-founds',
-      name: 'add-founds',
-      component: AddFounds
     },
     {
       path: '/info-page',

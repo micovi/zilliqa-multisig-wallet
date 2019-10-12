@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <div class="nothing" v-else>No transactions found.</div>
+  <div class="nothing text-white" v-else>No transactions found.</div>
 </template>
 
 <script>

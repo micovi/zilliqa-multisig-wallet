@@ -1,5 +1,35 @@
 <template>
   <div id="app" :class="{ loggedIn }">
+    <div class="navToggler" @click="toggleMenu">
+      <svg
+        version="1.1"
+        id="Capa_1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        width="24px"
+        height="24px"
+        viewBox="0 0 124 124"
+        style="enable-background:new 0 0 124 124;"
+        xml:space="preserve"
+      >
+        <g>
+          <path
+            fill="#fff"
+            d="M112,6H12C5.4,6,0,11.4,0,18s5.4,12,12,12h100c6.6,0,12-5.4,12-12S118.6,6,112,6z"
+          />
+          <path
+            fill="#fff"
+            d="M112,50H12C5.4,50,0,55.4,0,62c0,6.6,5.4,12,12,12h100c6.6,0,12-5.4,12-12C124,55.4,118.6,50,112,50z"
+          />
+          <path
+            fill="#fff"
+            d="M112,94H12c-6.6,0-12,5.4-12,12s5.4,12,12,12h100c6.6,0,12-5.4,12-12S118.6,94,112,94z"
+          />
+        </g>
+      </svg>
+    </div>
     <div id="nav" v-if="isLogged && $route.name !== 'welcome'">
       <img src="@/assets/zilliqa-logo-big.svg" class="zilliqa-logo-big" />
 
@@ -33,7 +63,6 @@
             fill="#fff"
           />
         </svg>
-
         Dashboard
       </router-link>
       <router-link class="d-flex nav-button" to="/create-wallet">
@@ -64,7 +93,6 @@
             </g>
           </g>
         </svg>
-
         Create Wallet
       </router-link>
       <router-link class="d-flex nav-button" to="/wallets">
@@ -125,7 +153,6 @@
             </g>
           </g>
         </svg>
-
         Wallets List
       </router-link>
       <router-link class="d-flex nav-button" to="/import-wallet">
@@ -160,7 +187,6 @@
             </g>
           </g>
         </svg>
-
         Import Wallet
       </router-link>
     </div>
@@ -176,14 +202,14 @@
 </template>
 
 <script>
-import NetworkSelector from './components/NetworkSelector';
-import { mapGetters } from 'vuex';
+import NetworkSelector from "./components/NetworkSelector";
+import { mapGetters } from "vuex";
 
-import LoginModal from '@/components/LoginModal';
-import SignModal from '@/components/SignModal';
+import LoginModal from "@/components/LoginModal";
+import SignModal from "@/components/SignModal";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     NetworkSelector,
     LoginModal,
@@ -198,14 +224,14 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('general', {
-      isLogged: 'isLogged'
+    ...mapGetters("general", {
+      isLogged: "isLogged"
     }),
     loggedIn() {
       if (
         this.isLogged === true &&
-        this.$route.name !== 'login' &&
-        this.$route.name !== 'welcome'
+        this.$route.name !== "login" &&
+        this.$route.name !== "welcome"
       ) {
         return true;
       }
@@ -218,32 +244,39 @@ export default {
     },
     onCloseLogin() {
       this.loginModal = false;
+    },
+    toggleMenu() {
+      let menu = document.querySelector("#nav"); // Using a class instead, see note below.
+      if (menu !== undefined && menu !== null) {
+        menu.classList.toggle("active");
+      }
+    }
+  },
+  beforeMount() {
+    if (!this.loggedIn && this.$route.name !== "login") {
+      return this.$router.replace({ name: "login" });
     }
   },
   mounted() {
-    if (!this.isLogged && this.$route.name !== 'login') {
-      return this.$router.push({ name: 'login' });
-    }
-
-    EventBus.$on('sign-event', txParams => {
+    EventBus.$on("sign-event", txParams => {
       this.signTx = txParams;
       this.signModal = true;
     });
 
-    EventBus.$on('sign-success', tx => {
+    EventBus.$on("sign-success", tx => {
       this.signModal = false;
       this.signTx = null;
     });
 
-    EventBus.$on('login-event', loginType => {
+    EventBus.$on("login-event", loginType => {
       this.loginType = loginType;
       this.loginModal = true;
     });
 
-    EventBus.$on('login-success', ({ keystore, address }) => {
+    EventBus.$on("login-success", ({ keystore, address }) => {
       this.loginModal = false;
 
-      this.$store.dispatch('general/login', {
+      this.$store.dispatch("general/login", {
         login_type: this.loginType,
         keystore: keystore,
         address: address
@@ -254,7 +287,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/style.scss';
+@import "@/assets/style.scss";
 
 .zilliqa-logo-big {
   width: 60%;

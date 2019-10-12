@@ -80,6 +80,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    z-index: 11;
 
     .container.flexed {
       height: 100%;
@@ -633,7 +634,7 @@ p {
         display: flex;
         justify-content: flex-end;
         padding-right: 1rem;
-        
+
         .unsign {
           border-radius: 4px;
           background-color: #edc557;
@@ -672,7 +673,7 @@ p {
 
           img {
             height: 0.7rem;
-            margin-right:0.25rem;
+            margin-right: 0.25rem;
           }
 
           &.execute {
@@ -687,6 +688,81 @@ p {
             background-color: #edc557;
           }
         }
+      }
+    }
+  }
+}
+
+#app {
+  .navToggler {
+    display: none;
+  }
+}
+
+@media screen and(max-width: 600px) {
+  img.zilliqa {
+    display: none;
+  }
+  .modal-container {
+    width: 80%;
+  }
+
+  .login .actions-container {
+    flex-wrap: wrap;
+
+    .button {
+      margin-bottom: 1rem;
+    }
+  }
+
+  #app {
+    grid-template-columns: 1fr !important;
+    padding-top: 10%;
+
+    .navToggler {
+      position: fixed;
+      top: 2rem;
+      left: 1rem;
+      display: block;
+      z-index: 9999;
+
+      svg {
+        path {
+          fill: #fff;
+        }
+      }
+    }
+  }
+
+  #app #nav {
+    position: fixed;
+    top:0;
+    width: 60%;
+    z-index: 9998;
+    transform: translateX(-100%);
+    transition: all .5s ease-in-out;
+
+    &.active {
+      transform: translateX(0);
+    }
+  }
+
+  .dashboard-screen {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .create-wallet {
+    padding-bottom: 1rem;
+    .owners-container {
+      grid-template-columns: 1fr;
+    }
+    .advanced-options {
+      flex-direction: column;
+
+      .option {
+        margin-left: 0 !important;
+        margin-bottom: 1rem;
       }
     }
   }

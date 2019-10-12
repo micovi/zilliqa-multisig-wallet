@@ -1,5 +1,5 @@
 <template>
-  <div class="add-funds-form">
+  <div class="add-funds-form" v-if="!isSuccess">
     <h2 class="subtitle mb-5">Add funds</h2>
 
     <div class="big-form mb-5">
@@ -36,12 +36,22 @@
       </div>
     </div>
   </div>
+  <success-screen v-else>
+    <div class="subtitle text-primary mb-5">
+      Transaction has been successfully deployed:
+      <br />
+      <viewblock-link :txid="tx.id" :network="network" />
+    </div>
+  </success-screen>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import { bytes, BN, Long, units } from "@zilliqa-js/util";
 import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
+
+import SuccessScreen from "@/components/SuccessScreen";
+import ViewblockLink from "@/components/ViewblockLink";
 
 export default {
   name: "AddFunds",
@@ -55,6 +65,10 @@ export default {
       isSuccess: false,
       txId: null
     };
+  },
+  components: {
+    SuccessScreen,
+    ViewblockLink
   },
   computed: {
     ...mapGetters("general", {

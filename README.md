@@ -1,5 +1,11 @@
 # multisig
 
+For Ledger testing on localhost use Caddy for serving HTTPS (https://localhost).
+```
+npm run serve
+caddy
+```
+
 ## Project setup
 ```
 npm install

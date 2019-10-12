@@ -143,8 +143,8 @@
             id="_03-speed"
             data-name="03-speed"
             xmlns="http://www.w3.org/2000/svg"
-            width="11.391"
-            height="11.391"
+            width="21.391"
+            height="21.391"
             viewBox="0 0 11.391 11.391"
           >
             <path

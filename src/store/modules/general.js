@@ -1,3 +1,7 @@
+import { validation } from '@zilliqa-js/util';
+import { fromBech32Address } from "@zilliqa-js/crypto";
+
+
 const state = {
     network: {
         name: 'Mainnet',
@@ -44,8 +48,13 @@ const getters = {
 
 const actions = {
     login({ commit }, { login_type, keystore, address }) {
+
+
+        let goodAddress = (login_type === 'ledger') ? address.pubAddr : address;
+        let fixedAddress = (validation.isBech32(goodAddress)) ? fromBech32Address(goodAddress) : goodAddress;
+
         commit('setLoginType', login_type);
-        commit('setAddress', address);
+        commit('setAddress', fixedAddress);
         commit('setKeystore', keystore);
     },
     logout({ commit }) {
