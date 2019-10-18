@@ -61,6 +61,76 @@
           Ledger
         </div>
       </div>
+
+      <div class="info-container">
+        <div class="info-item mr-5" @click="openVideo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32.334"
+            height="32.333"
+            viewBox="0 0 27.334 27.333"
+          >
+            <g id="play" transform="translate(0 -0.004)">
+              <path
+                id="Path_41"
+                data-name="Path 41"
+                d="M13.667,0A13.666,13.666,0,1,0,27.334,13.67,13.667,13.667,0,0,0,13.667,0Zm0,24.77a11.1,11.1,0,1,1,11.1-11.1A11.1,11.1,0,0,1,13.667,24.774ZM19.193,13.04,11.372,8.685a.691.691,0,0,0-1.13.624v8.73a.69.69,0,0,0,1.13.623L19.18,14.37A.721.721,0,0,0,19.193,13.04Z"
+                fill="#c9e2ff"
+              />
+            </g>
+          </svg>
+          <div class="text">
+            Multisig Wallet<br />
+            <span>Explainer video</span>
+          </div>
+        </div>
+        <div class="info-item" @click="openInfo">
+          <svg
+            id="info"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32.603"
+            height="32.603"
+            viewBox="0 0 26.603 26.603"
+          >
+            <g id="Group_70" data-name="Group 70">
+              <g id="Group_66" data-name="Group 66">
+                <path
+                  id="Path_44"
+                  data-name="Path 44"
+                  d="M13.3,26.6A13.3,13.3,0,1,1,26.6,13.3,13.316,13.316,0,0,1,13.3,26.6Zm0-23.893A10.592,10.592,0,1,0,23.893,13.3,10.6,10.6,0,0,0,13.3,2.709Z"
+                  fill="#c9e2ff"
+                />
+              </g>
+              <g id="Group_69" data-name="Group 69" transform="translate(11.124 6.831)">
+                <g id="Group_67" data-name="Group 67" transform="translate(0.164 0)">
+                  <circle
+                    id="Ellipse_6"
+                    data-name="Ellipse 6"
+                    cx="1.58"
+                    cy="1.58"
+                    r="1.58"
+                    transform="translate(0 3.119) rotate(-80.782)"
+                    fill="#c9e2ff"
+                  />
+                </g>
+                <g id="Group_68" data-name="Group 68" transform="translate(0 4.891)">
+                  <path
+                    id="Path_45"
+                    data-name="Path 45"
+                    d="M209.254,223.718H204.9v-2.112h.8v-3.594h-.787V215.9h3.545v5.706h.8Z"
+                    transform="translate(-204.9 -215.9)"
+                    fill="#c9e2ff"
+                  />
+                </g>
+              </g>
+            </g>
+          </svg>
+          <div class="text">
+            Check the info page<br />
+            <span>for usage and more</span>
+          </div>
+        </div>
+      </div>
     </div>
     <img class="zilliqa" src="@/assets/zilliqa.png" />
   </div>
@@ -99,6 +169,12 @@ export default {
     },
     loginWithLedger() {
       EventBus.$emit('login-event', 'ledger');
+    },
+    openVideo() {
+      
+    },
+    openInfo() {
+
     }
   }
 };

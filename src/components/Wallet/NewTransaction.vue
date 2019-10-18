@@ -4,14 +4,17 @@
 
     <div class="big-form mb-5">
       Destination:
-      <input type="text" v-model="destination" />
+      <div class="d-flex flex-column">
+      <input type="text" class="d-block" v-model="destination" @change="checkAddress" />
+      <div class="text-danger" v-if="destinationError">{{ destinationError }}</div>
+      </div>
       Amount (ZIL):
-      <input type="number" v-model="amount" />
+      <input type="number" min="0" v-model="amount" @change="checkAmount" />
     </div>
 
-    <h2 class="subtitle">Advanced options</h2>
+    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">Advanced options</h2>
 
-    <div class="advanced-options mb-5">
+    <div class="advanced-options d-none mb-5">
       <div class="option">
         Gas price:
         <input type="number" v-model="gasPrice" />
@@ -55,6 +58,7 @@ export default {
   data() {
     return {
       destination: null,
+      destinationError: false,
       amount: 0,
       gasPrice: 1000000000,
       tag: "",
@@ -74,6 +78,25 @@ export default {
     })
   },
   methods: {
+    checkAddress() {
+      const address = this.destination;
+      this.destinationError = false;
+
+      if(!validation.isAddress(address) && !validation.isBech32(address)) {
+        this.destination = null;
+        this.destinationError = `${address} is not a correct Zilliqa address.`;
+      }
+    },
+    checkAmount() {
+      if(this.amount <= -1) {
+        this.amount = 0;
+      }
+    },
+    toggleAdvancedOptions() {
+      const adv = document.querySelector('.advanced-options');
+
+      adv.classList.toggle('d-none');
+    },
     async proceed() {
       this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
@@ -126,3 +149,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.toggle-advanced-options {
+  cursor: pointer;
+}
+</style>

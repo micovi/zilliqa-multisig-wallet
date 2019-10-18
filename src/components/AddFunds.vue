@@ -6,12 +6,12 @@
       Wallet address:
       <input type="text" :value="bech32" disabled />
       Amount (ZIL):
-      <input type="number" v-model="amount" />
+      <input type="number" min="0" @change="checkAmount" v-model="amount" />
     </div>
 
-    <h2 class="subtitle">Advanced options</h2>
+    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">Advanced options</h2>
 
-    <div class="advanced-options mb-5">
+    <div class="advanced-options d-none mb-5">
       <div class="option">
         Gas price:
         <input type="number" v-model="gasPrice" />
@@ -77,6 +77,16 @@ export default {
     })
   },
   methods: {
+    checkAmount() {
+      if(this.amount <= -1) {
+        this.amount = 0;
+      }
+    },
+    toggleAdvancedOptions() {
+      const adv = document.querySelector('.advanced-options');
+
+      adv.classList.toggle('d-none');
+    },
     async proceed() {
       this.isLoading = true;
       const VERSION = bytes.pack(this.network.chainId, this.network.msgVersion);
@@ -101,11 +111,24 @@ export default {
   async mounted() {
     EventBus.$on("sign-success", async tx => {
       if (tx.id !== undefined && tx.receipt.success === true) {
-        console.log(tx.receipt);
-        this.tx = tx;
-        this.isSuccess = true;
+        Swal.fire({
+            type: "success",
+            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+          }).then(() => {
+            window.location.reload();
+          });
       }
     });
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.advanced-options {
+  margin-bottom: 2rem;
+}
+
+.toggle-advanced-options {
+  cursor: pointer;
+}
+</style>

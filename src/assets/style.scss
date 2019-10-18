@@ -1,4 +1,4 @@
-@import "@/assets/vars";
+@import '@/assets/vars';
 
 .swal2-popup {
   background-color: $dark !important;
@@ -11,7 +11,7 @@
   }
 }
 
-@import "@/../node_modules/bootstrap/scss/bootstrap";
+@import '@/../node_modules/bootstrap/scss/bootstrap';
 
 html,
 body {
@@ -29,6 +29,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: $dark;
   height: 100%;
+
+  .info-container {
+    position: absolute;
+    bottom: 5%;
+    display: flex;
+
+    .info-item {
+      color: #ffffff;
+      font-family: $Quicksand;
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      line-height: 1;
+
+      &:hover {
+        cursor: pointer;
+        color: $brand;
+        svg {
+          path {
+            fill: $brand;
+          }
+        }
+      }
+
+      svg {
+        margin-right: 1rem;
+      }
+
+      span {
+        font-weight: 400;
+      }
+    }
+  }
 
   &.loggedIn {
     display: grid;
@@ -314,7 +348,7 @@ p {
 
         z-index: 2;
         background-color: transparentize(
-          lighten(map-get($theme-colors, "danger"), 10),
+          lighten(map-get($theme-colors, 'danger'), 10),
           0.2
         );
         align-items: center;
@@ -345,7 +379,7 @@ p {
 
       &:hover {
         cursor: pointer;
-        background-color: lighten(map-get($theme-colors, "success"), 40);
+        background-color: lighten(map-get($theme-colors, 'success'), 40);
       }
     }
   }
@@ -736,11 +770,11 @@ p {
 
   #app #nav {
     position: fixed;
-    top:0;
+    top: 0;
     width: 60%;
     z-index: 9998;
     transform: translateX(-100%);
-    transition: all .5s ease-in-out;
+    transition: all 0.5s ease-in-out;
 
     &.active {
       transform: translateX(0);
