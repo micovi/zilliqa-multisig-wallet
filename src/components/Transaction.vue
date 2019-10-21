@@ -136,7 +136,7 @@ export default {
         gasPrice: new BN(1000000000),
         gasLimit: Long.fromNumber(50000),
         data: JSON.stringify({
-          _tag: "SignTransaction",
+          _tag: "RevokeSignature",
           params: [
             {
               vname: "transactionId",
@@ -176,6 +176,8 @@ export default {
   mounted() {
     let vm = this;
     EventBus.$on("sign-success", async tx => {
+      console.log(tx);
+
       if (tx.ledger === true) {
         Swal.fire({
           type: "success",

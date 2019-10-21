@@ -9,7 +9,9 @@
       <input type="number" min="0" @change="checkAmount" v-model="amount" />
     </div>
 
-    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">Advanced options</h2>
+    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">
+      Advanced options
+    </h2>
 
     <div class="advanced-options d-none mb-5">
       <div class="option">
@@ -46,16 +48,17 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { bytes, BN, Long, units } from "@zilliqa-js/util";
-import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
+import Swal from 'sweetalert2';
+import { mapGetters } from 'vuex';
+import { bytes, BN, Long, units } from '@zilliqa-js/util';
+import { toBech32Address, fromBech32Address } from '@zilliqa-js/crypto';
 
-import SuccessScreen from "@/components/SuccessScreen";
-import ViewblockLink from "@/components/ViewblockLink";
+import SuccessScreen from '@/components/SuccessScreen';
+import ViewblockLink from '@/components/ViewblockLink';
 
 export default {
-  name: "AddFunds",
-  props: ["address", "bech32", "zilliqa"],
+  name: 'AddFunds',
+  props: ['address', 'bech32', 'zilliqa'],
   data() {
     return {
       amount: 0,
@@ -71,14 +74,14 @@ export default {
     ViewblockLink
   },
   computed: {
-    ...mapGetters("general", {
-      network: "selectedNetwork",
-      personalAddress: "personalAddress"
+    ...mapGetters('general', {
+      network: 'selectedNetwork',
+      personalAddress: 'personalAddress'
     })
   },
   methods: {
     checkAmount() {
-      if(this.amount <= -1) {
+      if (this.amount <= -1) {
         this.amount = 0;
       }
     },
@@ -98,25 +101,46 @@ export default {
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
         data: JSON.stringify({
-          _tag: "AddFunds",
+          _tag: 'AddFunds',
           params: []
         })
       });
 
-      EventBus.$emit("sign-event", tx);
+      EventBus.$emit('sign-event', tx);
 
       this.isLoading = false;
+    },
+    async checkForHash(hash) {
+      const cid = await this.zilliqa.blockchain.getContractAddressFromTransactionID(hash);
+
+      if (cid.error !== undefined && cid.error.code === -5) {
+        return await this.checkForHash(hash);
+      }
+
+      return cid;
     }
   },
   async mounted() {
-    EventBus.$on("sign-success", async tx => {
-      if (tx.id !== undefined && tx.receipt.success === true) {
-        Swal.fire({
-            type: "success",
+    EventBus.$on('sign-success', async tx => {
+      console.log(tx);
+      if (tx.ledger !== true) {
+        if (tx.id !== undefined && tx.receipt.success === true) {
+          Swal.fire({
+            type: 'success',
             html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
           }).then(() => {
             window.location.reload();
           });
+        }
+      } else {
+        if (tx.id !== undefined) {
+          Swal.fire({
+            type: 'success',
+            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+          }).then(() => {
+            window.location.reload();
+          });
+        }
       }
     });
   }

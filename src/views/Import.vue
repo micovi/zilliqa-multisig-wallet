@@ -72,38 +72,60 @@ export default {
       return null;
     },
     async proceed() {
-      this.isLoading = true;
+      try {
+        this.isLoading = true;
 
-      let address = this.address;
+        let address = this.address;
 
-      if (validation.isBech32(address)) {
-        address = fromBech32Address(address);
-      }
+        if (validation.isBech32(address)) {
+          address = fromBech32Address(address);
+        }
 
-      const zilliqa = new Zilliqa(this.network.url);
+        const zilliqa = new Zilliqa(this.network.url);
 
-      const init = await zilliqa.blockchain.getSmartContractInit(address);
-      const signatures = init.result.find(item => item.vname === 'required_signatures');
-      const owners = init.result.find(item => item.vname === 'owners_list');
+        const init = await zilliqa.blockchain.getSmartContractInit(address);
+        const signatures = init.result.find(item => item.vname === 'required_signatures');
+        const owners = init.result.find(item => item.vname === 'owners_list');
 
-      this.constructOwners(owners.value);
+        this.constructOwners(owners.value);
 
-      this.deployedWallet = {
-        transId: null,
-        contractId: toBech32Address(address),
-        owners_list: this.owners_list,
-        signatures: signatures.value,
-        network: this.network.url
-      };
+        // need this for find function
+        const personala = toBech32Address(this.personalAddress);
 
-       try {
-        this.$store.dispatch('wallets/addWallet', this.deployedWallet);
-        this.isSuccess = true;
-        this.isLoading = false;
+        // Validate if user is in owners list
+        const found = this.owners_list.find(function(item) {
+          if (item.address === personala) return true;
+
+          return false;
+        });
+
+        if (found === undefined) {
+          throw new Error('You are not in owners list');
+        }
+
+        this.deployedWallet = {
+          transId: null,
+          contractId: toBech32Address(address),
+          owners_list: this.owners_list,
+          signatures: signatures.value,
+          network: this.network.url
+        };
+
+        try {
+          this.$store.dispatch('wallets/addWallet', this.deployedWallet);
+          this.isSuccess = true;
+          this.isLoading = false;
+        } catch (error) {
+          Swal.fire({
+            type: 'error',
+            text: error
+          });
+        }
       } catch (error) {
+        this.isLoading = false;
         Swal.fire({
           type: 'error',
-          text: error
+          text: error.message
         });
       }
     }

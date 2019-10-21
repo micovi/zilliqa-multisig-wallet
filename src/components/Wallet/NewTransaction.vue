@@ -5,14 +5,16 @@
     <div class="big-form mb-5">
       Destination:
       <div class="d-flex flex-column">
-      <input type="text" class="d-block" v-model="destination" @change="checkAddress" />
-      <div class="text-danger" v-if="destinationError">{{ destinationError }}</div>
+        <input type="text" class="d-block" v-model="destination" @change="checkAddress" />
+        <div class="text-danger" v-if="destinationError">{{ destinationError }}</div>
       </div>
       Amount (ZIL):
       <input type="number" min="0" v-model="amount" @change="checkAmount" />
     </div>
 
-    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">Advanced options</h2>
+    <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">
+      Advanced options
+    </h2>
 
     <div class="advanced-options d-none mb-5">
       <div class="option">
@@ -33,7 +35,9 @@
       <div v-if="isLoading" class="text-white">Please wait while the transaction is deployed.</div>
       <div v-if="!isLoading && !isSuccess">
         <button class="btn btn-primary mr-4" @click="proceed">Submit</button>
-        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">Cancel</button>
+        <button class="btn btn-outline-secondary" @click="$emit('cancel-new-transaction')">
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -47,21 +51,22 @@
 </template>
 
 <script>
-import { validation, units, bytes, BN, Long } from "@zilliqa-js/util";
-import { fromBech32Address } from "@zilliqa-js/crypto";
-import { mapGetters } from "vuex";
-import SuccessScreen from "@/components/SuccessScreen";
-import ViewblockLink from "@/components/ViewblockLink";
+import Swal from 'sweetalert2';
+import { validation, units, bytes, BN, Long } from '@zilliqa-js/util';
+import { fromBech32Address } from '@zilliqa-js/crypto';
+import { mapGetters } from 'vuex';
+import SuccessScreen from '@/components/SuccessScreen';
+import ViewblockLink from '@/components/ViewblockLink';
 
 export default {
-  name: "NewTransaction",
+  name: 'NewTransaction',
   data() {
     return {
       destination: null,
       destinationError: false,
       amount: 0,
       gasPrice: 1000000000,
-      tag: "",
+      tag: '',
       gasLimit: 50000,
       isLoading: false,
       isSuccess: false
@@ -71,10 +76,10 @@ export default {
     SuccessScreen,
     ViewblockLink
   },
-  props: ["zilliqa", "address"],
+  props: ['zilliqa', 'address'],
   computed: {
-    ...mapGetters("general", {
-      network: "selectedNetwork"
+    ...mapGetters('general', {
+      network: 'selectedNetwork'
     })
   },
   methods: {
@@ -82,13 +87,13 @@ export default {
       const address = this.destination;
       this.destinationError = false;
 
-      if(!validation.isAddress(address) && !validation.isBech32(address)) {
+      if (!validation.isAddress(address) && !validation.isBech32(address)) {
         this.destination = null;
         this.destinationError = `${address} is not a correct Zilliqa address.`;
       }
     },
     checkAmount() {
-      if(this.amount <= -1) {
+      if (this.amount <= -1) {
         this.amount = 0;
       }
     },
@@ -116,34 +121,46 @@ export default {
         gasPrice: new BN(this.gasPrice),
         gasLimit: Long.fromNumber(this.gasLimit),
         data: JSON.stringify({
-          _tag: "SubmitTransaction",
+          _tag: 'SubmitTransaction',
           params: [
             {
-              vname: "recipient",
-              type: "ByStr20",
+              vname: 'recipient',
+              type: 'ByStr20',
               value: `${destination}`
             },
-            { vname: "amount", type: "Uint128", value: `${amount}` },
-            { vname: "tag", type: "String", value: `${this.tag}` }
+            { vname: 'amount', type: 'Uint128', value: `${amount}` },
+            { vname: 'tag', type: 'String', value: `${this.tag}` }
           ]
         })
       });
 
-      EventBus.$emit("sign-event", tx);
+      EventBus.$emit('sign-event', tx);
 
       this.isLoading = false;
     }
   },
   async mounted() {
-    EventBus.$on("sign-success", async tx => {
-      if (tx.id !== undefined && tx.receipt.success === true) {
-        console.log(tx.receipt);
-        this.tx = tx;
-        this.isSuccess = true;
+    EventBus.$on('sign-success', async tx => {
+      if (tx.ledger !== true) {
+        if (tx.id !== undefined && tx.receipt.success === true) {
+          Swal.fire({
+            type: 'success',
+            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+          }).then(() => {
+            window.location.reload();
+          });
+        }
+      } else {
+        Swal.fire({
+          type: 'success',
+          html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+        }).then(() => {
+          window.location.reload();
+        });
       }
     });
 
-    EventBus.$on("sign-error", async tx => {
+    EventBus.$on('sign-error', async tx => {
       console.log(tx);
     });
   }

@@ -1,16 +1,22 @@
 <template>
   <div class="create-wallet" v-if="isDeployed === false">
     <h1 class="title mb-5">Create a new wallet</h1>
-    <p>This wallet does not allow adding or removing owners, or changing the number of required signatures.</p>
+    <p>
+      This wallet does not allow adding or removing owners, or changing the number of required
+      signatures.
+    </p>
     <p class="mb-5">
-      WARNING: If a sufficient number of owners lose their private keys, or for any other reason ar unable or unwilling to sign for new transactions, the funds in the wallet will be locked forever.
-      It is therefore a good idea to set required_signatures to a value strictly less than the number of owners, so that the remaining owners can retrieve the funds should such a scenario occur.
+      WARNING: If a sufficient number of owners lose their private keys, or for any other reason ar
+      unable or unwilling to sign for new transactions, the funds in the wallet will be locked
+      forever. It is therefore a good idea to set required_signatures to a value strictly less than
+      the number of owners, so that the remaining owners can retrieve the funds should such a
+      scenario occur.
     </p>
 
     <h2 class="subtitle">Add owners</h2>
 
     <div class="owners-container">
-      <div class="owner" v-for="(owner,index) in owners" :key="index">
+      <div class="owner" v-for="(owner, index) in owners" :key="index">
         <p class="name mb-0">Address</p>
         <span class="address">{{ owner.address }}</span>
         <div class="overlay" @click="removeOwner(index)">Click to remove</div>
@@ -18,10 +24,9 @@
       <div class="add-owner" @click="addOwner">Add Owner</div>
     </div>
 
-    <div
-      class="text-info small mt-4"
-      v-if="owners.length <= 1"
-    >You should add minimum 2 owners to a Multisig Wallet.</div>
+    <div class="text-info small mt-4" v-if="owners.length <= 1">
+      You should add minimum 2 owners to a Multisig Wallet.
+    </div>
 
     <div class="create-options mt-5">
       <div class="row">
@@ -68,22 +73,23 @@
     </div>
     <router-link
       class="btn btn-primary"
-      :to="{name: 'wallet', params:{address: deployedWallet.contractId}}"
-    >Go to wallet now</router-link>
+      :to="{ name: 'wallet', params: { address: deployedWallet.contractId } }"
+      >Go to wallet now</router-link
+    >
   </success-screen>
 </template>
 
 <script>
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
 
-import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
-import { fromBech32Address, toBech32Address } from "@zilliqa-js/crypto";
-import { mapGetters } from "vuex";
-import SuccessScreen from "@/components/SuccessScreen.vue";
+import { Zilliqa } from '@zilliqa-js/zilliqa';
+import { BN, Long, bytes, units, validation } from '@zilliqa-js/util';
+import { fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
+import { mapGetters } from 'vuex';
+import SuccessScreen from '@/components/SuccessScreen.vue';
 
 export default {
-  name: "CreateWallet",
+  name: 'CreateWallet',
   components: {
     SuccessScreen
   },
@@ -100,11 +106,11 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("general", {
-      network: "selectedNetwork",
-      walletType: "walletType",
-      personalAddress: "personalAddress",
-      wallet: "wallet"
+    ...mapGetters('general', {
+      network: 'selectedNetwork',
+      walletType: 'walletType',
+      personalAddress: 'personalAddress',
+      wallet: 'wallet'
     })
   },
   methods: {
@@ -120,14 +126,14 @@ export default {
 
         list.splice(0, 1);
         nodes = {
-          constructor: "Cons",
-          argtypes: ["ByStr20"],
+          constructor: 'Cons',
+          argtypes: ['ByStr20'],
           arguments: [address, this.buildOwnersTree(list)]
         };
       } else {
         nodes = {
-          constructor: "Nil",
-          argtypes: ["ByStr20"],
+          constructor: 'Nil',
+          argtypes: ['ByStr20'],
           arguments: []
         };
       }
@@ -142,9 +148,9 @@ export default {
     },
     async addOwner() {
       let { value: address } = await Swal.fire({
-        title: "Add Owner",
-        input: "text",
-        inputPlaceholder: "Enter address"
+        title: 'Add Owner',
+        input: 'text',
+        inputPlaceholder: 'Enter address'
       });
 
       try {
@@ -160,18 +166,18 @@ export default {
           });
 
           if (found !== undefined) {
-            throw "Already added to owners list.";
+            throw 'Already added to owners list.';
           }
 
           this.owners.push({
             address
           });
         } else {
-          throw "Invalid address";
+          throw 'Invalid address';
         }
       } catch (error) {
         Swal.fire({
-          type: "error",
+          type: 'error',
           text: error
         });
       }
@@ -186,9 +192,9 @@ export default {
 
       try {
         // validations
-        if (this.owners.length <= 1) throw "You should add minimum 2 owners.";
-        if (!this.gasPrice) throw "Gas Price should be set.";
-        if (!this.gasLimit) throw "Gas Limit should be set.";
+        if (this.owners.length <= 1) throw 'You should add minimum 2 owners.';
+        if (!this.gasPrice) throw 'Gas Price should be set.';
+        if (!this.gasLimit) throw 'Gas Limit should be set.';
 
         const chainId = this.network.chainId; // chainId of the developer testnet
         const msgVersion = this.network.msgVersion; // current msgVersion
@@ -660,46 +666,55 @@ end
         let ownersTree = this.buildOwnersTree([...this.owners]);
 
         const owners_list = {
-          vname: "owners_list",
-          type: "List ByStr20",
+          vname: 'owners_list',
+          type: 'List ByStr20',
           value: ownersTree
         };
 
         const init = [
           // this parameter is mandatory for all init arrays
           {
-            vname: "_scilla_version",
-            type: "Uint32",
-            value: "0"
+            vname: '_scilla_version',
+            type: 'Uint32',
+            value: '0'
           },
           owners_list,
           {
-            vname: "required_signatures",
-            type: "Uint32",
+            vname: 'required_signatures',
+            type: 'Uint32',
             value: `${this.signatures}`
           }
         ];
 
         const tx = this.zilliqa.transactions.new({
           version: VERSION,
-          toAddr: "0x0000000000000000000000000000000000000000",
+          toAddr: '0x0000000000000000000000000000000000000000',
           amount: new BN(0),
           gasPrice: myGasPrice, // in Qa
           gasLimit: Long.fromNumber(this.gasLimit),
           code: contractCode,
           data: JSON.stringify(init).replace(/\\"/g, '"'),
-          signature: ""
+          signature: ''
         });
 
-        EventBus.$emit("sign-event", tx);
+        EventBus.$emit('sign-event', tx);
       } catch (error) {
         Swal.fire({
-          type: "error",
+          type: 'error',
           text: error
         });
 
         this.isLoading = false;
       }
+    },
+    async checkForHash(hash) {
+      const cid = await this.zilliqa.blockchain.getContractAddressFromTransactionID(hash);
+
+      if(cid.error !== undefined && cid.error.code === -5) {
+        return await this.checkForHash(hash);
+      }
+
+      return cid;
     }
   },
   beforeMount() {
@@ -708,29 +723,49 @@ end
   async mounted() {
     this.zilliqa = new Zilliqa(this.network.url);
 
-    EventBus.$on("sign-success", async tx => {
+    EventBus.$on('sign-success', async tx => {
+      if (tx.ledger !== true) {
+        const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(tx.id);
 
-      const contractId = await this.zilliqa.blockchain.getContractAddressFromTransactionID(
-        tx.id
-      );
+        this.isDeployed = true;
+        this.isLoading = false;
 
-      this.isDeployed = true;
-      this.isLoading = false;
+        let contractBech32 = toBech32Address(contractId.result);
 
-      let contractBech32 = toBech32Address(contractId.result);
+        this.deployedWallet = {
+          transId: tx.id,
+          contractId: contractBech32,
+          owners_list: this.owners,
+          signatures: this.signatures,
+          network: this.network.url
+        };
 
-      this.deployedWallet = {
-        transId: tx.id,
-        contractId: contractBech32,
-        owners_list: this.owners,
-        signatures: this.signatures,
-        network: this.network.url
-      };
+        try {
+          this.$store.dispatch('wallets/addWallet', this.deployedWallet);
+        } catch (error) {
+          throw error;
+        }
+      }else {
+        const contractId = await this.checkForHash(tx.id);
 
-      try {
-        this.$store.dispatch("wallets/addWallet", this.deployedWallet);
-      } catch (error) {
-        throw error;
+        this.isDeployed = true;
+        this.isLoading = false;
+
+        let contractBech32 = toBech32Address(contractId.result);
+
+        this.deployedWallet = {
+          transId: tx.id,
+          contractId: contractBech32,
+          owners_list: this.owners,
+          signatures: this.signatures,
+          network: this.network.url
+        };
+
+        try {
+          this.$store.dispatch('wallets/addWallet', this.deployedWallet);
+        } catch (error) {
+          throw error;
+        }
       }
     });
   }

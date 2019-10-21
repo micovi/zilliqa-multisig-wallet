@@ -53,7 +53,7 @@
             >Sign with Ledger</button>
             <button
               class="btn btn-primary"
-              @click="tryKeystoreLogin"
+              @click="tryKeystoreSign"
               v-if="loginType === 'keystore' && loading === false && success === false"
             >Sign</button>
           </div>
@@ -72,8 +72,8 @@ import {
 } from "@zilliqa-js/crypto";
 import { BN, units, Long } from "@zilliqa-js/util";
 // import TransportU2F from '@ledgerhq/hw-transport-u2f';
-// import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+// import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import ViewblockLink from "@/components/ViewblockLink";
@@ -113,7 +113,7 @@ export default {
 
       try {
         this.loading = "Trying to create U2F transport.";
-        const transport = await TransportWebAuthn.create();
+        const transport = await TransportWebUSB.create();
         this.loading = "Trying to initialize Ledger Transport";
         const zil = new Ledger(transport);
         this.loading = "Please confirm Public Key generation on Ledger Device";
@@ -203,7 +203,7 @@ export default {
         this.error = error.message;
       }
     },
-    async tryKeystoreLogin() {
+    async tryKeystoreSign() {
       this.error = false;
       this.login = false;
 
@@ -224,7 +224,7 @@ export default {
         );
 
         this.loading = "Trying to Sign and send transaction...";
-
+        
         const signedTx = await this.zilliqa.blockchain.createTransaction(
           this.tx
         );
