@@ -23,4 +23,4 @@ jobs:
                   command: npm run build
             - run:
                   name: Firebase Deploy
-                  command: ./node_modules/.bin/firebase deploy --token "$FIREBASE_TOKEN" --only hosting:mutisig-test
+                  command: ./node_modules/.bin/firebase deploy --token "$FIREBASE_TOKEN" --only hosting:multisig-test
