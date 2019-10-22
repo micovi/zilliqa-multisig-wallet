@@ -13,7 +13,7 @@
     </div>
 
     <h2 class="subtitle toggle-advanced-options mb-4" @click="toggleAdvancedOptions">
-      Advanced options
+      Advanced options <i class="fas fa-chevron-down"></i>
     </h2>
 
     <div class="advanced-options d-none mb-5">

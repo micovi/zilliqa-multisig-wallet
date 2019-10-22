@@ -33,17 +33,17 @@
         <div class="col-12 col-md-3">
           <h2 class="subtitle mb-3">Min. signatures</h2>
           <div class="signature-input">
-            <div class="controller minus" @click="signatureMinus">-</div>
-            <input type="number" min="2" :max="owners.length" v-model="signatures" />
-            <div class="controller plus" @click="signaturePlus">
+            <div class="controller minus" @click="signatureMinus" v-if="signatures >= 3">-</div>
+            <input type="number" class="mx-1" min="2" :max="owners.length" v-model="signatures" />
+            <div class="controller plus" @click="signaturePlus" v-if="signatures < owners.length">
               <span>+</span>
             </div>
           </div>
         </div>
         <div class="col-12 col-md-7">
-          <h2 class="subtitle mb-3">Advanced options</h2>
+          <h2 class="subtitle mb-3 toggle-advanced-options"  @click="toggleAdvancedOptions">Advanced options <i class="fas fa-chevron-down"></i></h2>
 
-          <div class="advanced-options">
+          <div class="advanced-options d-none mb-5">
             <div class="option">
               Gas price:
               <input type="number" v-model="gasPrice" />
@@ -114,6 +114,11 @@ export default {
     })
   },
   methods: {
+    toggleAdvancedOptions() {
+      const adv = document.querySelector('.advanced-options');
+
+      adv.classList.toggle('d-none');
+    },
     buildOwnersTree(list) {
       var nodes = {};
 
@@ -771,3 +776,13 @@ end
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.advanced-options {
+  margin-bottom: 2rem;
+}
+
+.toggle-advanced-options {
+  cursor: pointer;
+}
+</style>
