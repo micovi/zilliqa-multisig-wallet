@@ -49,12 +49,12 @@
             <button
               class="btn btn-primary"
               @click="tryLedgerSign"
-              v-if="loginType === 'ledger' && loading === false && success === false && !actionHappening"
+              v-if="!actionHappening && loginType === 'ledger' && loading === false && success === false"
             >Sign with Ledger</button>
             <button
               class="btn btn-primary"
               @click="tryKeystoreSign"
-              v-if="loginType === 'keystore' && loading === false && success === false && !actionHappening"
+              v-if="!actionHappening && loginType === 'keystore' && loading === false && success === false"
             >Sign</button>
           </div>
         </div>
@@ -245,6 +245,7 @@ export default {
         }
         this.loading = false;
       } catch (error) {
+        this.actionHappening = false;
         this.loading = false;
         this.error = error.message;
       }
