@@ -42,6 +42,40 @@
                 </div>
               </div>
             </div>
+            <div v-if="type === 'zilpay'">
+              <div class="account-selector">
+                <p class="mb-4 text-dark">Get address with via ZilPay extension.</p>
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <td class="small">#</td>
+                      <td class="small">Address</td>
+                      <td class="small">Balance</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(account, index) in accounts" :key="index" @click="useLedgerAccount(index)">
+                      <td class="small">{{ index }}</td>
+                      <td class="small">{{ account.address }}</td>
+                      <td class="small">{{ account.balance }} ZIL</td>
+                    </tr>
+                  </tbody>
+                </table>      
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-secondary mr-4" @click="generateZilPayAccount">
+                    GET
+                  </button>
+
+                  <button
+                    class="btn btn-success"
+                    @click="useLedgerAccount(0)"
+                    v-if="accounts.length >= 1"
+                  >
+                    Use #0
+                  </button>
+                </div>
+              </div>
+            </div>
             <div v-if="type === 'keystore'">
               <div class="mb-4">
                 <label class="d-block">1. Select your keystore.json file</label>
@@ -66,6 +100,7 @@
                 />
               </div>
             </div>
+
             <div class="loading my-4" v-if="loading">
               <div class="icon text-center">
                 <i class="fas fa-spinner fa-spin"></i>
@@ -94,10 +129,12 @@ import { getAddressFromPublicKey, fromBech32Address, toBech32Address } from '@zi
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
+import ZilPayMixin from '@/mixins/zilpay'
 
 export default {
   name: 'LoginModal',
   props: ['type'],
+  mixins: [ZilPayMixin],
   data() {
     return {
       file: null,
@@ -133,6 +170,32 @@ export default {
     },
     onFileChange() {
       this.selected = this.$refs.file.files[0];
+    },
+    async generateZilPayAccount() {
+      this.loading = 'Connection to ZilPay';
+      try {
+        await this.zilPayTest();
+      } catch (err) {
+        console.log(err);
+      }
+
+      const { bech32 } = this.walletState.currentAddress;
+      let zils = 0;
+
+      try {
+        const balance = await window.zilPay.blockchain.getBalance(bech32);
+        zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+      } catch (err) {
+        //
+      }
+
+      this.accounts.push({
+        address: bech32,
+        index: this.currentIndex + 1,
+        balance: zils
+      });
+
+      this.loading = false;
     },
     async generateLedgerAccount() {
       this.loading = 'Trying to create U2F transport.';

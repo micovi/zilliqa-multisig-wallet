@@ -60,6 +60,25 @@
 
           Ledger
         </div>
+        <div class="button d-flex flex-column"
+             @click="loginWithZilPay">
+          <svg
+            id="squares_1_"
+            xmlns="http://www.w3.org/2000/svg"
+            width="28.075"
+            height="28.167"
+            viewBox="0 0 28.075 28.167"
+          >
+            <path
+              id="Path_21"
+              data-name="Path 21"
+              d="M23.64,0H10.683V17.387H28.07V4.522A4.51,4.51,0,0,0,23.64,0ZM6.7,0H4.533A4.544,4.544,0,0,0,0,4.533V6.7H6.7ZM0,10.775H6.7v6.7H0ZM21.371,28.162h2.171a4.544,4.544,0,0,0,4.533-4.533V21.463h-6.7v6.7Zm-10.688-6.7h6.7v6.7h-6.7ZM0,21.463v2.171a4.544,4.544,0,0,0,4.533,4.533H6.7v-6.7Z"
+              fill="#c9e2ff"
+            />
+          </svg>
+
+          ZilPay
+        </div>
       </div>
 
       <div class="info-container">
@@ -165,10 +184,13 @@ export default {
   },
   methods: {
     async loginWithKeystore() {
-      EventBus.$emit('login-event', 'keystore');
+      window.EventBus.$emit('login-event', 'keystore');
     },
     loginWithLedger() {
-      EventBus.$emit('login-event', 'ledger');
+      window.EventBus.$emit('login-event', 'ledger');
+    },
+    loginWithZilPay() {
+      window.EventBus.$emit('login-event', 'zilpay');
     },
     openVideo() {
       
