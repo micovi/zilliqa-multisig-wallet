@@ -22,7 +22,7 @@
 
   <success-screen v-else>
     <div class="subtitle text-primary mb-5">
-      Your wallet was deployed with the following address
+      Wallet successfully imported
       <br />
       <span class="text-white">{{ address }}</span>
     </div>
@@ -118,14 +118,14 @@ export default {
         } catch (error) {
           Swal.fire({
             type: 'error',
-            text: error
+            text: 'Wallet could not be imported. Please the your input address.'
           });
         }
       } catch (error) {
         this.isLoading = false;
         Swal.fire({
           type: 'error',
-          text: error.message
+          text: 'Wallet could not be imported. Please the your input address.'
         });
       }
     }

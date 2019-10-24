@@ -4,7 +4,7 @@
       <div class="modal-wrapper">
         <div class="modal-container">
           <div class="modal-header p-0">
-            <h4 class="text-primary">Sign and deploy transaction</h4>
+            <h4 class="text-primary">Sign and send transaction</h4>
           </div>
 
           <div class="modal-body p-0">
@@ -49,12 +49,12 @@
             <button
               class="btn btn-primary"
               @click="tryLedgerSign"
-              v-if="loginType === 'ledger' && loading === false && success === false"
+              v-if="loginType === 'ledger' && loading === false && success === false && !actionHappening"
             >Sign with Ledger</button>
             <button
               class="btn btn-primary"
               @click="tryKeystoreSign"
-              v-if="loginType === 'keystore' && loading === false && success === false"
+              v-if="loginType === 'keystore' && loading === false && success === false && !actionHappening"
             >Sign</button>
           </div>
         </div>
@@ -70,10 +70,9 @@ import {
   fromBech32Address,
   toBech32Address
 } from "@zilliqa-js/crypto";
+
 import { BN, units, Long } from "@zilliqa-js/util";
- import TransportU2F from '@ledgerhq/hw-transport-u2f';
-//import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-// import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from "@zilliqa-js/zilliqa";
 import { mapGetters } from "vuex";
 import ViewblockLink from "@/components/ViewblockLink";
@@ -90,6 +89,7 @@ export default {
       selected: undefined,
       passphrase: "",
       error: false,
+      actionHappening: false,
       loading: false,
       success: false,
       txId: "",
@@ -107,6 +107,8 @@ export default {
     async tryLedgerSign() {
       this.errors = false;
       this.loading = false;
+      this.actionHappening = true;
+
       if (this.zilliqa === undefined) {
         this.zilliqa = new Zilliqa(this.network.url);
       }
@@ -114,7 +116,7 @@ export default {
       try {
         this.loading = "Trying to create U2F transport.";
         const transport = await TransportU2F.create();
-        this.loading = "Trying to initialize Ledger Transport";
+        this.loading = "Trying to initialize Ledger U2F Transport";
         const zil = new Ledger(transport);
         this.loading = "Please confirm Public Key generation on Ledger Device";
         // const address = await zil.signTxn(0, this.tx.txParams);
@@ -172,14 +174,14 @@ export default {
           };
 
           const response = await fetch(this.network.url, {
-            method: "POST", // *GET, POST, PUT, DELETE, etc.
-            mode: "cors", // no-cors, *cors, same-origin
-            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: "same-origin", // include, *same-origin, omit
+            method: "POST", 
+            mode: "cors",
+            cache: "no-cache",
+            credentials: "same-origin",
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify(newtx) // body data type must match "Content-Type" header
+            body: JSON.stringify(newtx)
           });
 
           let data = await response.json();
@@ -195,6 +197,7 @@ export default {
           }
 
           if(data.result.error !== undefined) {
+            this.actionHappening = false;
             throw new Error(data.result.error.message);
           }
         }
@@ -206,6 +209,7 @@ export default {
     async tryKeystoreSign() {
       this.error = false;
       this.login = false;
+      this.actionHappening = true;
 
       try {
         this.loading = "Trying to decrypt keystore file and access wallet...";
@@ -223,11 +227,13 @@ export default {
           this.passphrase
         );
 
-        this.loading = "Trying to Sign and send transaction...";
+        this.loading = "Trying to sign and send transaction...";
         
         const signedTx = await this.zilliqa.blockchain.createTransaction(
           this.tx
         );
+
+        this.actionHappening = false;
 
         if (
           signedTx.receipt !== undefined &&

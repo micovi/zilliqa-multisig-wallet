@@ -6,8 +6,8 @@
       signatures.
     </p>
     <p class="mb-5">
-      WARNING: If a sufficient number of owners lose their private keys, or for any other reason ar
-      unable or unwilling to sign for new transactions, the funds in the wallet will be locked
+      WARNING: If a sufficient number of owners lose their private keys, or for any other reason are
+      unable or unwilling to sign new transactions, the funds in the wallet will be locked
       forever. It is therefore a good idea to set required_signatures to a value strictly less than
       the number of owners, so that the remaining owners can retrieve the funds should such a
       scenario occur.
@@ -61,7 +61,7 @@
       <button class="btn btn-primary mr-4" @click="proceed" v-if="!isLoading">Create Wallet</button>
 
       <div class="loading text-white" v-else>
-        <i class="fas fa-spinner fa-spin"></i> Please wait until Wallet is deployed.
+        <i class="fas fa-spinner fa-spin"></i> Please wait until wallet is deployed.
       </div>
     </div>
   </div>
