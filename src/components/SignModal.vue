@@ -99,7 +99,9 @@ export default {
       address: null,
       publicKey: null,
       generatedKeys: false,
-      zilliqa: undefined
+      zilliqa: undefined,
+      currentIndex: 0,
+      accounts: []
     };
   },
   computed: {
@@ -125,7 +127,7 @@ export default {
         this.loading = 'Trying to initialize Ledger U2F Transport';
         const zil = new Ledger(transport);
         this.loading = 'Please confirm Public Key generation on Ledger Device';
-        const pubkey = await zil.getPublicKey(0);
+        const pubkey = await zil.getPublicKey(this.keystore);
 
         const address = getAddressFromPublicKey(pubkey.publicKey);
 
@@ -140,7 +142,7 @@ export default {
           const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
           this.loading = `Account balance: ${zils} ZIL`;
           this.generatedKeys = true;
-          
+
           transport.close();
 
           this.actionHappening = false;
@@ -164,76 +166,75 @@ export default {
         const transport = await TransportU2F.create();
         this.loading = 'Trying to initialize Ledger U2F Transport';
         const zil = new Ledger(transport);
-          let nonce = parseInt(this.nonce) + 1;
-          this.loading = '';
+        let nonce = parseInt(this.nonce) + 1;
+        this.loading = '';
 
-          const oldp = this.tx.txParams;
-          const newP = {
-            version: oldp.version,
-            toAddr: oldp.toAddr,
-            amount: oldp.amount,
-            code: oldp.code,
-            data: oldp.data,
-            gasLimit: oldp.gasLimit,
-            gasPrice: oldp.gasPrice,
-            nonce: nonce,
-            pubKey: this.publicKey,
-            signature: ''
-          };
+        const oldp = this.tx.txParams;
+        const newP = {
+          version: oldp.version,
+          toAddr: oldp.toAddr,
+          amount: oldp.amount,
+          code: oldp.code,
+          data: oldp.data,
+          gasLimit: oldp.gasLimit,
+          gasPrice: oldp.gasPrice,
+          nonce: nonce,
+          pubKey: this.publicKey,
+          signature: ''
+        };
 
-          this.loading = 'Please sign transaction from the Ledger Device';
-          const signed = await zil.signTxn(0, newP);
-          const signature = signed.sig;
+        this.loading = 'Please sign transaction from the Ledger Device';
+        const signed = await zil.signTxn(this.keystore, newP);
+        const signature = signed.sig;
 
-          const newtx = {
-            id: '1',
-            jsonrpc: '2.0',
-            method: 'CreateTransaction',
-            params: [
-              {
-                toAddr: oldp.toAddr,
-                amount: oldp.amount.toString(),
-                code: oldp.code,
-                data: oldp.data,
-                gasLimit: oldp.gasLimit.toString(),
-                gasPrice: oldp.gasPrice.toString(),
-                nonce: nonce,
-                pubKey: this.publicKey,
-                signature: signature,
-                version: oldp.version,
-                priority: false
-              }
-            ]
-          };
+        const newtx = {
+          id: '1',
+          jsonrpc: '2.0',
+          method: 'CreateTransaction',
+          params: [
+            {
+              toAddr: oldp.toAddr,
+              amount: oldp.amount.toString(),
+              code: oldp.code,
+              data: oldp.data,
+              gasLimit: oldp.gasLimit.toString(),
+              gasPrice: oldp.gasPrice.toString(),
+              nonce: nonce,
+              pubKey: this.publicKey,
+              signature: signature,
+              version: oldp.version,
+              priority: false
+            }
+          ]
+        };
 
-          const response = await fetch(this.network.url, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newtx)
+        const response = await fetch(this.network.url, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newtx)
+        });
+
+        let data = await response.json();
+
+        if (data.result.TranID !== undefined) {
+          this.loading = false;
+          EventBus.$emit('sign-success', {
+            ledger: true,
+            tx: data.result.TranID,
+            id: data.result.TranID
           });
+          $emit('close-sign');
+        }
 
-          let data = await response.json();
-
-          if (data.result.TranID !== undefined) {
-            this.loading = false;
-            EventBus.$emit('sign-success', {
-              ledger: true,
-              tx: data.result.TranID,
-              id: data.result.TranID
-            });
-            $emit('close-sign');
-          }
-
-          if (data.result.error !== undefined) {
-            this.actionHappening = false;
-            throw new Error(data.result.error.message);
-          }
-       
+        if (data.result.error !== undefined) {
+          this.actionHappening = false;
+          throw new Error(data.result.error.message);
+        }
       } catch (error) {
         this.loading = false;
         this.error = error.message;

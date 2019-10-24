@@ -9,12 +9,37 @@
 
           <div class="modal-body p-0">
             <div v-if="type === 'ledger'">
-              <div class="loading" v-if="loading">
-                <ol>
-                  <li>Connect and Unlock Ledger Device to computer</li>
-                  <li>Open Zilliqa App</li>
-                  <li>Confirm Address generation on Ledger Device</li>
-                </ol>
+              <div class="account-selector">
+                <p class="mb-4 text-dark">Select the Ledger Account you want to proceed with</p>
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <td class="small">#</td>
+                      <td class="small">Address</td>
+                      <td class="small">Balance</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(account, index) in accounts" :key="index" @click="useLedgerAccount(index)">
+                      <td class="small">{{ index }}</td>
+                      <td class="small">{{ account.address }}</td>
+                      <td class="small">{{ account.balance }} ZIL</td>
+                    </tr>
+                  </tbody>
+                </table>      
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-secondary mr-4" @click="generateLedgerAccount">
+                    Generate #{{ currentIndex + 1 }}
+                  </button>
+
+                  <button
+                    class="btn btn-success"
+                    @click="useLedgerAccount(0)"
+                    v-if="accounts.length >= 1"
+                  >
+                    Use #0
+                  </button>
+                </div>
               </div>
             </div>
             <div v-if="type === 'keystore'">
@@ -25,9 +50,7 @@
                     <i class="fas fa-file-upload"></i> BROWSE
                   </button>
                   <span v-if="selected !== undefined && selected.name !== undefined">
-                    {{
-                    selected.name
-                    }}
+                    {{ selected.name }}
                   </span>
                 </div>
                 <input type="file" ref="file" @change="onFileChange" class="d-none" />
@@ -54,16 +77,9 @@
 
           <div class="footer d-flex justify-content-end">
             <button class="btn btn-link text-danger" @click="$emit('close-login')">Cancel</button>
-            <button
-              class="btn btn-primary"
-              @click="tryLedgerLogin"
-              v-if="type === 'ledger'"
-            >Retry Connection</button>
-            <button
-              class="btn btn-primary"
-              @click="tryKeystoreLogin"
-              v-if="type === 'keystore'"
-            >Login</button>
+            <button class="btn btn-primary" @click="tryKeystoreLogin" v-if="type === 'keystore'">
+              Login
+            </button>
           </div>
         </div>
       </div>
@@ -72,32 +88,31 @@
 </template>
 
 <script>
-import Ledger from "@/utils/zil-ledger-interface";
-import {
-  getAddressFromPublicKey,
-  fromBech32Address,
-  toBech32Address
-} from "@zilliqa-js/crypto";
-import TransportU2F from "@ledgerhq/hw-transport-u2f";
-import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { mapGetters } from "vuex";
+import { BN, units, Long } from '@zilliqa-js/util';
+import Ledger from '@/utils/zil-ledger-interface';
+import { getAddressFromPublicKey, fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
+import TransportU2F from '@ledgerhq/hw-transport-u2f';
+import { Zilliqa } from '@zilliqa-js/zilliqa';
+import { mapGetters } from 'vuex';
 
 export default {
-  name: "LoginModal",
-  props: ["type"],
+  name: 'LoginModal',
+  props: ['type'],
   data() {
     return {
       file: null,
       selected: undefined,
-      passphrase: "",
+      passphrase: '',
       error: false,
       loading: false,
-      zilliqa: undefined
+      zilliqa: undefined,
+      currentIndex: -1,
+      accounts: []
     };
   },
   computed: {
-    ...mapGetters("general", {
-      network: "selectedNetwork"
+    ...mapGetters('general', {
+      network: 'selectedNetwork'
     })
   },
   methods: {
@@ -107,7 +122,7 @@ export default {
       return new Promise((resolve, reject) => {
         temporaryFileReader.onerror = () => {
           temporaryFileReader.abort();
-          reject(new Error("Problem parsing input file."));
+          reject(new Error('Problem parsing input file.'));
         };
 
         temporaryFileReader.onload = () => {
@@ -119,27 +134,47 @@ export default {
     onFileChange() {
       this.selected = this.$refs.file.files[0];
     },
-    async tryLedgerLogin() {
-      this.errors = false;
+    async generateLedgerAccount() {
+      this.loading = 'Trying to create U2F transport.';
+      const transport = await TransportU2F.create();
+      this.loading = 'Trying to initialize Ledger Transport';
+      const zil = new Ledger(transport);
+      this.loading = 'Please confirm action on Ledger Device';
+      const address = await zil.getPublicAddress(this.currentIndex + 1);
+
+      if (this.zilliqa === undefined) {
+        this.zilliqa = new Zilliqa(this.network.url);
+      }
+
+      let balance = await this.zilliqa.blockchain.getBalance(address.pubAddr);
+
+      if (balance.error && balance.error.code === -5) {
+        this.accounts.push({
+          index: this.currentIndex+1,
+          address: address.pubAddr,
+          balance: 0
+        });
+      } else {
+        const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+
+        this.accounts.push({
+           index: this.currentIndex+1,
+          address: address.pubAddr,
+          balance: zils
+        });
+      }
+
+      this.currentIndex = this.currentIndex + 1;
+
+      transport.close();
       this.loading = false;
-      try {
-        this.loading = "Trying to create U2F transport.";
-        const transport = await TransportU2F.create();
-        this.loading = "Trying to initialize Ledger Transport";
-        const zil = new Ledger(transport);
-        this.loading = "Please confirm action on Ledger Device";
-        const address = await zil.getPublicAddress();
+    },
+    useLedgerAccount(index) {
+      const account = this.accounts[index];
+      EventBus.$emit('login-success', { keystore: null, keystore: account.index, address: account.address });
 
-        this.address = address.pubAddr;
-        this.loading = false;
-
-        EventBus.$emit("login-success", { keystore: null, address: address });
-
-        if (this.address !== null) {
-          this.$emit("close-login");
-        }
-      } catch (error) {
-        this.error = error.message;
+      if (this.address !== null) {
+        this.$emit('close-login');
       }
     },
     async tryKeystoreLogin() {
@@ -147,7 +182,7 @@ export default {
       this.login = false;
 
       try {
-        this.loading = "Trying to decrypt keystore file and access wallet...";
+        this.loading = 'Trying to decrypt keystore file and access wallet...';
 
         if (this.zilliqa === undefined) {
           this.zilliqa = new Zilliqa(this.network.url);
@@ -155,22 +190,19 @@ export default {
 
         const vm = this;
 
-        if (this.selected === "" || this.selected === undefined) {
-          throw new Error("Please select your keystore file.");
+        if (this.selected === '' || this.selected === undefined) {
+          throw new Error('Please select your keystore file.');
         }
 
-        if (this.passphrase === "" || this.passphrase === undefined) {
-          throw new Error("Please enter passphrase.");
+        if (this.passphrase === '' || this.passphrase === undefined) {
+          throw new Error('Please enter passphrase.');
         }
 
         this.file = await this.readUploadedFileAsText(this.selected);
 
-        const address = await this.zilliqa.wallet.addByKeystore(
-          this.file,
-          this.passphrase
-        );
+        const address = await this.zilliqa.wallet.addByKeystore(this.file, this.passphrase);
 
-        EventBus.$emit("login-success", {
+        EventBus.$emit('login-success', {
           keystore: this.file,
           address: address
         });
@@ -181,11 +213,20 @@ export default {
         this.error = error.message;
       }
     }
-  },
-  async mounted() {
-    if (this.type === "ledger") {
-      this.tryLedgerLogin();
-    }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+  .account-selector {
+    .table {
+      tr {
+        &:hover {
+          td {
+            background-color: rgba(0,0,0,0.2);
+          }
+        }
+      }
+    }
+  }
+</style>

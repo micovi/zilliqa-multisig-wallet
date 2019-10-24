@@ -48,10 +48,7 @@ const getters = {
 
 const actions = {
     login({ commit }, { login_type, keystore, address }) {
-
-
-        let goodAddress = (login_type === 'ledger') ? address.pubAddr : address;
-        let fixedAddress = (validation.isBech32(goodAddress)) ? fromBech32Address(goodAddress) : goodAddress;
+        let fixedAddress = (validation.isBech32(address)) ? fromBech32Address(address) : address;
 
         commit('setLoginType', login_type);
         commit('setAddress', fixedAddress);
