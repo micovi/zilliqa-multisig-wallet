@@ -57,8 +57,7 @@
 import numbro from "numbro";
 import Swal from "sweetalert2";
 
-import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
+import { BN, Long, bytes, units } from "@zilliqa-js/util";
 import { fromBech32Address, toBech32Address } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 
@@ -175,10 +174,7 @@ export default {
     }
   },
   mounted() {
-    let vm = this;
     EventBus.$on("sign-success", async tx => {
-      console.log(tx);
-
       if (tx.ledger === true) {
         Swal.fire({
           type: "success",

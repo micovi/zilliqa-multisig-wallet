@@ -88,9 +88,8 @@
 </template>
 
 <script>
-import { BN, units, Long } from '@zilliqa-js/util';
+import { BN, units } from '@zilliqa-js/util';
 import Ledger from '@/utils/zil-ledger-interface';
-import { getAddressFromPublicKey, fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
@@ -171,7 +170,7 @@ export default {
     },
     useLedgerAccount(index) {
       const account = this.accounts[index];
-      EventBus.$emit('login-success', { keystore: null, keystore: account.index, address: account.address });
+      EventBus.$emit('login-success', { keystore: account.index, address: account.address });
 
       if (this.address !== null) {
         this.$emit('close-login');
@@ -187,8 +186,6 @@ export default {
         if (this.zilliqa === undefined) {
           this.zilliqa = new Zilliqa(this.network.url);
         }
-
-        const vm = this;
 
         if (this.selected === '' || this.selected === undefined) {
           throw new Error('Please select your keystore file.');

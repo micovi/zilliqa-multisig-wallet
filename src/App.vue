@@ -263,7 +263,7 @@ export default {
       this.signModal = true;
     });
 
-    EventBus.$on("sign-success", tx => {
+    EventBus.$on("sign-success", () => {
       this.signModal = false;
       this.signTx = null;
     });

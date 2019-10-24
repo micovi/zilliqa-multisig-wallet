@@ -1,16 +1,12 @@
 <template>
   <div class="wallet-card d-flex flex-column justify-content-center align-items-center">
     <i class="fas fa-question fa-3x mb-4"></i>
-    <div class="text-white">You can pin wallets here.</div>
+    <div class="text-white mb-4">You can pin wallets here.</div>
+    <router-link :to="{name:'wallets-list'}" class="btn btn-link text-primary"><i class="fas fa-link"></i> Browse Wallets</router-link>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import numbro from "numbro";
-
-import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
-
 export default {
   name: "WalletCardPlaceholder"
 };

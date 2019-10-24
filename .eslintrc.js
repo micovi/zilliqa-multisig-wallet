@@ -3,6 +3,9 @@ module.exports = {
   env: {
     node: true
   },
+  "globals": {
+    "EventBus": "readonly"
+  },
   'extends': [
     'plugin:vue/essential',
     'eslint:recommended'

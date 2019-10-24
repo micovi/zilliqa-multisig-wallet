@@ -178,10 +178,8 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2';
-
 export default {
-  name: 'login',
+  name: 'Welcome',
   data() {
     return {
       keystoreData: null,

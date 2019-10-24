@@ -51,7 +51,6 @@
 import Swal from 'sweetalert2';
 import { mapGetters } from 'vuex';
 import { bytes, BN, Long, units } from '@zilliqa-js/util';
-import { toBech32Address, fromBech32Address } from '@zilliqa-js/crypto';
 
 import SuccessScreen from '@/components/SuccessScreen';
 import ViewblockLink from '@/components/ViewblockLink';

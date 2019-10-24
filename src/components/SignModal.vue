@@ -71,9 +71,9 @@
 
 <script>
 import Ledger from '@/utils/zil-ledger-interface';
-import { getAddressFromPublicKey, fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
+import { getAddressFromPublicKey } from '@zilliqa-js/crypto';
 
-import { BN, units, Long } from '@zilliqa-js/util';
+import { BN, units } from '@zilliqa-js/util';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
@@ -228,7 +228,7 @@ export default {
             tx: data.result.TranID,
             id: data.result.TranID
           });
-          $emit('close-sign');
+          this.$emit('close-sign');
         }
 
         if (data.result.error !== undefined) {
@@ -256,7 +256,7 @@ export default {
           throw new Error('Please enter passphrase.');
         }
 
-        const address = await this.zilliqa.wallet.addByKeystore(this.keystore, this.passphrase);
+        await this.zilliqa.wallet.addByKeystore(this.keystore, this.passphrase);
 
         this.loading = 'Trying to sign and send transaction...';
 

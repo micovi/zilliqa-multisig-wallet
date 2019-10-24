@@ -154,7 +154,7 @@ export default {
         if (tx.id !== undefined && tx.receipt.success === true) {
           Swal.fire({
             type: 'success',
-            html: `Transaction has been successfully sent <a target="_blank" href="${viewblock(tx.id)}">${tx.id}</a>`
+            html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.id}</a>`
           }).then(() => {
             window.location.reload();
           });
@@ -162,7 +162,7 @@ export default {
       } else {
         Swal.fire({
           type: 'success',
-          html: `Transaction has been successfully sent <a target="_blank" href="${viewblock(tx.id)}">${tx.id}</a>`
+          html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.id}</a>`
         }).then(() => {
           window.location.reload();
         });
