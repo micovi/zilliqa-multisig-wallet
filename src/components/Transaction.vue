@@ -2,6 +2,7 @@
   <div class="transaction mb-4" v-if="!isLoading">
     <div class="item">
       <div class="font-weight-bold">Tx ID.</div>
+      <div class="address-text">{{ transaction.key }}</div>
     </div>
     <div class="item transfer">
       <div class="font-weight-bold">Transfer</div>
@@ -86,7 +87,7 @@ export default {
       ).format();
     },
     destination() {
-      return fromBech32Address('zil1wahjxzanzuq4eysf9zknyfn4r8dnq6ypm6ggah');
+      return toBech32Address(this.transaction.destination);
     },
     hasSigned() {
       const personalAddress = this.personalAddress;
