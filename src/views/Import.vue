@@ -118,14 +118,14 @@ export default {
         } catch (error) {
           Swal.fire({
             type: 'error',
-            text: 'Wallet could not be imported. Please the your input address.'
+            text: 'Wallet could not be imported. Please check input address.'
           });
         }
       } catch (error) {
         this.isLoading = false;
         Swal.fire({
           type: 'error',
-          text: 'Wallet could not be imported. Please the your input address.'
+          text: 'Wallet could not be imported. Please check input address.'
         });
       }
     }
