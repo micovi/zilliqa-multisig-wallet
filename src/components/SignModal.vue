@@ -62,6 +62,13 @@
             >
               Sign
             </button>
+            <button
+              class="btn btn-primary"
+              @click="tryZilPaySign"
+              v-if="isZilPay && !loading && !success"
+            >
+              Sign
+            </button>
           </div>
         </div>
       </div>
@@ -78,10 +85,12 @@ import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
 import ViewblockLink from '@/components/ViewblockLink';
+import ZilPayMixin from '@/mixins/zilpay'
 
 export default {
   name: 'SignModal',
   props: ['tx'],
+  mixins: [ZilPayMixin],
   components: {
     ViewblockLink
   },
@@ -109,7 +118,11 @@ export default {
       network: 'selectedNetwork',
       loginType: 'walletType',
       keystore: 'getKeystore'
-    })
+    }),
+
+    isZilPay() {
+      return typeof window.zilPay !== 'undefined';
+    }
   },
   methods: {
     async generateKeys() {
@@ -275,7 +288,44 @@ export default {
         this.loading = false;
         this.error = error.message;
       }
+    },
+    async tryZilPaySign() {
+      const test = this.zilPayTest();
+      if (!test) {
+        return null;
+      }
+      this.error = false;
+      this.login = false;
+      this.actionHappening = true;
+
+      try {
+        this.loading = 'Trying send via ZilPay...';
+
+        const { bech32 } = this.walletState.currentAddress;
+        const address = bech32;
+
+        this.loading = 'Trying to sign and send transaction...';
+
+        const signedTx = await window
+          .zilPay
+          .blockchain
+          .createTransaction(this.tx);
+
+        this.actionHappening = false;
+
+        if (signedTx.receipt !== undefined && signedTx.receipt.success !== undefined) {
+          EventBus.$emit('sign-success', signedTx);
+        } else {
+          EventBus.$emit('sign-error', signedTx);
+        }
+        this.loading = false;
+      } catch (error) {
+        this.actionHappening = false;
+        this.loading = false;
+        this.error = error.message;
+      }
     }
+
   },
   async mounted() {}
 };
