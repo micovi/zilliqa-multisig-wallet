@@ -16,6 +16,23 @@
                   <li>Confirm Address generation on Ledger Device</li>
                 </ol>
               </div>
+              <div class="account-selector">
+                <h4 class="mb-4">Select Account</h4>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Index</th>
+                      <th>Address</th>
+                      <th>Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
+
+                <button class="btn btn-secondary" @click="generateLedgerAccount">Generate next account <i class="fas fa-arrow-right"></i></button>
+              </div>
             </div>
             <div v-if="type === 'keystore'">
               <div class="mb-4">
@@ -92,7 +109,9 @@ export default {
       passphrase: "",
       error: false,
       loading: false,
-      zilliqa: undefined
+      zilliqa: undefined,
+      currentIndex: 0,
+      accounts: []
     };
   },
   computed: {
@@ -101,6 +120,13 @@ export default {
     })
   },
   methods: {
+    generateLedgerAccount() {
+
+      this.accounts.push({
+        address: 'zil1jeq7ns08wykmn29y987mgf2n6qapg87dltn03v',
+        balance: 12432
+      })
+    },
     readUploadedFileAsText(inputFile) {
       const temporaryFileReader = new FileReader();
 
