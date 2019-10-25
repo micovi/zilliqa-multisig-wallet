@@ -64,7 +64,6 @@
 import { mapGetters } from 'vuex';
 import numbro from 'numbro';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
-import { toBech32Address, fromBech32Address } from '@zilliqa-js/crypto';
 import { units, BN } from '@zilliqa-js/util';
 
 export default {

@@ -13,7 +13,7 @@
       </div>
       <div v-if="!isLoading && !isSuccess">
         <button class="btn btn-primary mr-4" @click="proceed">Import wallet</button>
-        <button class="btn btn-outline-secondary" @click="$emit('cancel-add-funds')">
+        <button class="btn btn-outline-secondary" @click="cancelImport">
           Cancel
         </button>
       </div>
@@ -22,7 +22,7 @@
 
   <success-screen v-else>
     <div class="subtitle text-primary mb-5">
-      Your wallet was deployed with the following address
+      Wallet successfully imported
       <br />
       <span class="text-white">{{ address }}</span>
     </div>
@@ -36,15 +36,12 @@
 import Swal from 'sweetalert2';
 import { mapGetters } from 'vuex';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
-import { bytes, BN, Long, units, validation } from '@zilliqa-js/util';
+import { validation } from '@zilliqa-js/util';
 import { toBech32Address, fromBech32Address } from '@zilliqa-js/crypto';
-import { SuccessScreen } from '@/components/SuccessScreen';
+import SuccessScreen from '@/components/SuccessScreen.vue';
 
 export default {
   name: 'ImportWallet',
-  components: {
-    SuccessScreen
-  },
   data() {
     return {
       address: '',
@@ -54,6 +51,9 @@ export default {
       owners_list: []
     };
   },
+  components: {
+    SuccessScreen
+  },
   computed: {
     ...mapGetters('general', {
       network: 'selectedNetwork',
@@ -61,6 +61,9 @@ export default {
     })
   },
   methods: {
+    cancelImport() {
+      return this.$router.push('/');
+    },
     constructOwners(list) {
       if (list.arguments.length === 2) {
         this.owners_list.push({
@@ -118,14 +121,14 @@ export default {
         } catch (error) {
           Swal.fire({
             type: 'error',
-            text: error
+            text: 'Wallet could not be imported. Please check input address.'
           });
         }
       } catch (error) {
         this.isLoading = false;
         Swal.fire({
           type: 'error',
-          text: error.message
+          text: 'Wallet could not be imported. Please check input address.'
         });
       }
     }

@@ -5,12 +5,12 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
-
-</style>
-
 <script>
 export default {
     name: "SuccessScreen"
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>

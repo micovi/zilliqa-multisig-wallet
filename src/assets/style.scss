@@ -1,4 +1,4 @@
-@import '@/assets/vars';
+@import "@/assets/vars";
 
 .swal2-popup {
   background-color: $dark !important;
@@ -11,7 +11,7 @@
   }
 }
 
-@import '@/../node_modules/bootstrap/scss/bootstrap';
+@import "@/../node_modules/bootstrap/scss/bootstrap";
 
 html,
 body {
@@ -21,6 +21,12 @@ body {
   font-size: 16px;
   width: 100%;
   height: 100%;
+}
+
+html.swal2-shown.swal2-height-auto {
+  body.swal2-shown.swal2-height-auto {
+    height: 100% !important;
+  }
 }
 
 #app {
@@ -348,7 +354,7 @@ p {
 
         z-index: 2;
         background-color: transparentize(
-          lighten(map-get($theme-colors, 'danger'), 10),
+          lighten(map-get($theme-colors, "danger"), 10),
           0.2
         );
         align-items: center;
@@ -379,7 +385,7 @@ p {
 
       &:hover {
         cursor: pointer;
-        background-color: lighten(map-get($theme-colors, 'success'), 40);
+        background-color: lighten(map-get($theme-colors, "success"), 40);
       }
     }
   }

@@ -33,7 +33,6 @@ import Swal from "sweetalert2";
 import { mapGetters } from "vuex";
 
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { isBech32 } from "@zilliqa-js/util/dist/validation";
 import { toBech32Address, fromBech32Address } from "@zilliqa-js/crypto";
 
 import TransactionsList from "@/components/TransactionsList";

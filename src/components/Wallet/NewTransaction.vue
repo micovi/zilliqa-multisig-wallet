@@ -137,6 +137,15 @@ export default {
       EventBus.$emit('sign-event', tx);
 
       this.isLoading = false;
+    },
+    viewblock(txid) {
+      let link = `https://viewblock.io/zilliqa/tx/${txid}`;
+      
+      if(this.network.url === 'https://dev-api.zilliqa.com') {
+        link += '?network=testnet';
+      }
+
+      return link;
     }
   },
   async mounted() {
@@ -145,7 +154,7 @@ export default {
         if (tx.id !== undefined && tx.receipt.success === true) {
           Swal.fire({
             type: 'success',
-            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+            html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.id}</a>`
           }).then(() => {
             window.location.reload();
           });
@@ -153,7 +162,7 @@ export default {
       } else {
         Swal.fire({
           type: 'success',
-          html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+          html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.id}</a>`
         }).then(() => {
           window.location.reload();
         });

@@ -2,6 +2,7 @@
   <div class="transaction mb-4" v-if="!isLoading">
     <div class="item">
       <div class="font-weight-bold">Tx ID.</div>
+      <div class="address-text">{{ transaction.key }}</div>
     </div>
     <div class="item transfer">
       <div class="font-weight-bold">Transfer</div>
@@ -56,8 +57,7 @@
 import numbro from "numbro";
 import Swal from "sweetalert2";
 
-import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
+import { BN, Long, bytes, units } from "@zilliqa-js/util";
 import { fromBech32Address, toBech32Address } from "@zilliqa-js/crypto";
 import { mapGetters } from "vuex";
 
@@ -86,7 +86,7 @@ export default {
       ).format();
     },
     destination() {
-      return fromBech32Address('zil1wahjxzanzuq4eysf9zknyfn4r8dnq6ypm6ggah');
+      return toBech32Address(this.transaction.destination);
     },
     hasSigned() {
       const personalAddress = this.personalAddress;
@@ -174,10 +174,7 @@ export default {
     }
   },
   mounted() {
-    let vm = this;
     EventBus.$on("sign-success", async tx => {
-      console.log(tx);
-
       if (tx.ledger === true) {
         Swal.fire({
           type: "success",

@@ -137,12 +137,11 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
 
 export default {
-  name: 'login',
+  name: 'Login',
   data() {
     return {
       keystoreData: null,
