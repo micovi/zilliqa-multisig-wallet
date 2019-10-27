@@ -87,7 +87,7 @@ import { BN, Long, bytes, validation } from '@zilliqa-js/util';
 import { fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
 import { mapGetters } from 'vuex';
 import SuccessScreen from '@/components/SuccessScreen.vue';
-import contractCode from 'raw-loader!@/wallet.scilla';
+import contractCode from '@/walletDefinition';
 
 export default {
   name: 'CreateWallet',

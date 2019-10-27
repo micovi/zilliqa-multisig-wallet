@@ -1,4 +1,4 @@
-scilla_version 0
+const WALLET = `scilla_version 0
 
 import ListUtils IntUtils BoolUtils
 
@@ -449,4 +449,6 @@ transition AddFunds ()
   | Valid =>
     accept
   end
-end
+end`;
+
+export default WALLET;
