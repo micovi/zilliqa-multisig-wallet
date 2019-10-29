@@ -170,11 +170,9 @@ export default {
       EventBus.$emit('login-event', 'ledger');
     },
     openVideo() {
-      
+      EventBus.$emit('video-event');
     },
-    openInfo() {
-
-    }
+    openInfo() {}
   }
 };
 </script>
