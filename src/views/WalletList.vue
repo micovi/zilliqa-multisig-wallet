@@ -9,6 +9,7 @@
         :zilliqa="zilliqa"
         :wallet="wallet"
         v-on:pin-wallet="pinWallet"
+        v-on:color-wallet="colorWallet"
       ></wallet-card>
     </div>
   </div>
@@ -47,6 +48,13 @@ export default {
       Swal.fire({
         type: 'success',
         text: 'Wallet has been pinned'
+      });
+    },
+    colorWallet(payload) {
+      this.$store.dispatch('wallets/colorWallet', payload);
+      Swal.fire({
+        type: 'success',
+        text: 'Wallet color has been saved'
       });
     }
   },

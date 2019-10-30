@@ -1,7 +1,14 @@
 <template>
-  <div class="wallet-card">
+  <div class="wallet-card" :class="walletColor">
     <div class="actions">
-      <div class="pallete action">
+      <div class="pallete-colors action" :class="{open: isOpen}">
+        <div class="color pallete-blue" @click="colorWallet('blue')"></div>
+        <div class="color pallete-purple" @click="colorWallet('purple')"></div>
+        <div class="color pallete-green" @click="colorWallet('green')"></div>
+        <div class="color pallete-black" @click="colorWallet('black')"></div>
+        <div class="color pallete-none" @click="colorWallet(undefined)"></div>
+      </div>
+      <div class="pallete action" @click="openPallete">
         <svg
           id="painter-palette"
           xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +78,8 @@ export default {
   data() {
     return {
       loading: true,
-      balance: null
+      balance: null,
+      isOpen: false
     };
   },
   props: ['wallet', 'zilliqa'],
@@ -81,12 +89,24 @@ export default {
         name: 'wallet',
         params: { address: this.wallet.contractId }
       });
+    },
+    openPallete() {
+      this.isOpen = !this.isOpen;
+    },
+    colorWallet(color) {
+      this.wallet.color = color;
+      this.$emit('color-wallet', {wallet: this.wallet.contractId, color});
+
+      this.isOpen = false;
     }
   },
   computed: {
     ...mapGetters('general', {
       network: 'selectedNetwork'
-    })
+    }),
+    walletColor() {
+      return `pallete-${this.wallet.color}`;
+    }
   },
   async mounted() {
     if (this.zilliqa !== undefined) {
