@@ -271,6 +271,11 @@ export default {
       this.videoModal = true;
     });
 
+    EventBus.$on("close-sign", () => {
+      this.signModal = false;
+      return window.location.reload();
+    });
+
     EventBus.$on("video-close", () => {
       this.videoModal = false;
     });

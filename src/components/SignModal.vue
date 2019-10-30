@@ -46,7 +46,7 @@
           </div>
 
           <div class="footer d-flex justify-content-end" v-if="!actionHappening">
-            <button class="btn btn-link text-danger" @click="$emit('close-sign')">Cancel</button>
+            <button class="btn btn-link text-danger" @click="closeSign">Cancel</button>
             <div v-if="loginType === 'ledger' && !success">
               <button class="btn btn-primary" @click="generateKeys" v-if="!generatedKeys">
                 Generate PublicKey
@@ -112,6 +112,10 @@ export default {
     })
   },
   methods: {
+    closeSign() {
+      this.$emit('close-sign');
+      EventBus.$emit('close-sign');
+    },
     async generateKeys() {
       this.errors = false;
       this.loading = false;
@@ -256,9 +260,20 @@ export default {
           throw new Error('Please enter passphrase.');
         }
 
-        await this.zilliqa.wallet.addByKeystore(this.keystore, this.passphrase);
+        const loaded = await this.zilliqa.wallet.addByKeystore(this.keystore, this.passphrase);
 
-        this.loading = 'Trying to sign and send transaction...';
+        // Verify if account is created on blockchain
+        const balance = await this.zilliqa.blockchain.getBalance(loaded);
+        if(balance.error !== undefined) {
+          throw new Error(balance.error.message);
+        }
+
+        const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+        if(zils < 20) {
+          throw new Error('You account should have more than 20 ZIL to be able to perform multisig actions.');
+        }
+
+        this.loading = 'Trying to sign and send transaction... this might take between 3-5 minutes.';
 
         const signedTx = await this.zilliqa.blockchain.createTransaction(this.tx);
 
