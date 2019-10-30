@@ -87,7 +87,6 @@ import { BN, Long, bytes, validation } from '@zilliqa-js/util';
 import { fromBech32Address, toBech32Address } from '@zilliqa-js/crypto';
 import { mapGetters } from 'vuex';
 import SuccessScreen from '@/components/SuccessScreen.vue';
-import contractCode from '@/walletDefinition';
 
 export default {
   name: 'CreateWallet',
@@ -99,7 +98,7 @@ export default {
       owners: [],
       signatures: 2,
       gasPrice: 1000000000,
-      gasLimit: 50000,
+      gasLimit: 20000,
       isLoading: false,
       isDeployed: false,
       zilliqa: null,
