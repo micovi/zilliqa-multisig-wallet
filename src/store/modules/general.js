@@ -59,6 +59,13 @@ const actions = {
         commit('setAddress', null);
         commit('setLoginType', null);
     },
+    zilpayAutoChangeNetwork({ commit, state }, net) {
+        const network = state
+            .networks
+            .find(item => item.name.toLowerCase().includes(net));
+
+        commit('setNetwork', network);
+    },
     changeNetwork({ commit, state }, url) {
         const network = state.networks.find(function (item) {
             return item.url === url

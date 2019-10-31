@@ -57,7 +57,7 @@ export default {
 
       return true;
     },
-    observable (cbAddress, cbNet) {
+    observable (cbAddress) {
       try {
         this.walletState.currentAddress = window.zilPay.wallet.defaultAccount.bech32
         if (typeof cbAddress === 'function') {
@@ -71,26 +71,6 @@ export default {
             this.walletState.currentAddress = acc.bech32
             if (typeof cbAddress === 'function') {
               cbAddress(acc)
-            }
-          })
-      } catch (err) {
-        // Skip
-      }
-
-      try {
-        this.walletState.network = window.zilPay.wallet.net
-        if (typeof cbNet === 'function') {
-          cbNet(window.zilPay.wallet.net)
-        }
-        this.observables.network = window
-          .zilPay
-          .wallet
-          .observableNetwork()
-          .subscribe((net) => {
-            this.walletState.network = net
-            this.zilPayTest()
-            if (typeof cbNet === 'function') {
-              cbNet(net)
             }
           })
       } catch (err) {
