@@ -62,6 +62,13 @@
             >
               Sign
             </button>
+            <button
+              class="btn btn-primary"
+              @click="tryZilPaySign"
+              v-if="loginType === 'zilpay' && !loading && !success"
+            >
+              Sign
+            </button>
           </div>
         </div>
       </div>
@@ -78,10 +85,12 @@ import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
 import ViewblockLink from '@/components/ViewblockLink';
+import ZilPayMixin from '@/mixins/zilpay';
 
 export default {
   name: 'SignModal',
   props: ['tx'],
+  mixins: [ZilPayMixin],
   components: {
     ViewblockLink
   },
@@ -240,6 +249,54 @@ export default {
           throw new Error(data.result.error.message);
         }
       } catch (error) {
+        this.loading = false;
+        this.error = error.message;
+      }
+    },
+    async tryZilPaySign() {
+      this.error = false;
+      this.login = false;
+      this.actionHappening = true;
+
+      try {
+        this.loading = 'Trying to sign via ZilPay wallet...';
+        this.zilPayTest();
+
+        const { base16 } = window.zilPay.wallet.defaultAccount;
+
+        // Verify if account is created on blockchain
+        const balance = await window
+          .zilPay
+          .blockchain.getBalance(base16);
+
+        if(balance.error !== undefined) {
+          throw new Error(balance.error.message);
+        }
+
+        const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+
+        if(zils < 20) {
+          throw new Error('You account should have more than 20 ZIL to be able to perform multisig actions.');
+        }
+
+        this.loading = 'Trying to sign and send transaction... this might take between 3-5 minutes.';
+
+        const signedTx = await window
+          .zilPay
+          .blockchain
+          .createTransaction(this.tx);
+
+        this.actionHappening = false;
+
+        if (signedTx.receipt !== undefined && signedTx.receipt.success !== undefined) {
+          EventBus.$emit('sign-success', signedTx);
+        } else {
+          EventBus.$emit('sign-error', signedTx);
+        }
+
+        this.loading = false;
+      } catch (error) {
+        this.actionHappening = false;
         this.loading = false;
         this.error = error.message;
       }

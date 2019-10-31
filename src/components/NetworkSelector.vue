@@ -11,7 +11,7 @@
         <span>{{ selectedNetwork.name }}</span>
       </div>
 
-      <div v-if="zilpay" class="dropdown-list">
+      <div v-if="!isZilPay" class="dropdown-list">
         <a
           v-for="(network,index) in networks"
           :key="index"

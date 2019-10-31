@@ -32,9 +32,9 @@ export default {
     },
     async zilPayTest () {
       if (typeof window.zilPay === 'undefined') {
-        return false;
+        throw new Error('ZilPay is not installed.');
       } else if (!window.zilPay.wallet.isEnable) {
-        return false;
+        throw new Error('Please unlock ZIlPay.');
       } else if (!window.zilPay.wallet.isConnect) {
         window
           .zilPay
