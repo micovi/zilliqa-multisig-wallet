@@ -54,6 +54,7 @@
                   <tbody>
                     <tr
                       v-for="(account, index) in accounts"
+                      class="pointer"
                       :key="index"
                       @click="useLedgerAccount(index)"
                     >
@@ -147,7 +148,47 @@ export default {
       network: 'selectedNetwork'
     })
   },
+  mounted() {
+    this
+      .isLoad()
+      .then(() => this.zilPayTest())
+      .then(test => {
+        if (!test) {
+          return null;
+        }
+
+        this.observable(this.zilpayAddressCb);
+      });
+  },
   methods: {
+    async zilpayAddressCb(account) {
+      if (!account || !account.bech32) {
+        return null;
+      }
+
+      this.error = false;
+
+      let balance = null;
+
+      try {
+        balance = await window
+          .zilPay
+          .blockchain
+          .getBalance(account.bech32);
+
+        const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+
+        balance = zils;        
+      } catch (err) {
+        balance = 0;
+      } finally {
+        this.accounts = [{
+          balance,
+          address: account.bech32
+        }];
+        this.loading = false;
+      }
+    },
     readUploadedFileAsText(inputFile) {
       const temporaryFileReader = new FileReader();
 
@@ -258,5 +299,8 @@ export default {
         }
       }
     }
+  }
+  .pointer {
+    cursor: pointer;
   }
 </style>

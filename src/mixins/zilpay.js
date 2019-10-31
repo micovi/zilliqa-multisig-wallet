@@ -26,7 +26,7 @@ export default {
           resolve(true);
         }
         window.onload = function () {
-          resolve(true);
+          setTimeout(() => resolve(true), 1000);
         }
       })
     },
@@ -41,13 +41,19 @@ export default {
           .wallet
           .connect()
           .then(() => {
-            const { bech32 } = window.zilPay.wallet.defaultAccount;
+            const { bech32 } = window
+              .zilPay
+              .wallet
+              .defaultAccount;
             this.walletState.currentAddress = bech32;
           });
         return null;
       }
 
-      this.walletState.currentAddress = window.zilPay.wallet.defaultAccount;
+      this.walletState.currentAddress = window
+        .zilPay
+        .wallet
+        .defaultAccount;
 
       return true;
     },
