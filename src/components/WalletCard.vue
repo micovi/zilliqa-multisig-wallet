@@ -117,7 +117,7 @@ export default {
 
         this.balance = numbro(fbalance).format({
           thousandSeparated: true,
-          mantissa: 2
+          mantissa: 3
         });
         this.loading = false;
       }
@@ -131,7 +131,7 @@ export default {
 
         this.balance = numbro(fbalance).format({
           thousandSeparated: true,
-          mantissa: 2
+          mantissa: 3
         });
         this.loading = false;
       }
