@@ -25,7 +25,7 @@ export default {
   props: ["address", "zilliqa", "balance"],
   computed: {
     formattedBalance() {
-      return numbro(this.balance).format({ thousandSeparated: true, mantissa:0 });
+      return numbro(this.balance).format({ thousandSeparated: true, mantissa:2 });
     }
   }
 };
