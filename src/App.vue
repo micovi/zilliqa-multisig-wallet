@@ -262,6 +262,13 @@ export default {
     }
   },
   mounted() {
+    // add clickjacking frame-killing
+    if (self == top) {
+      document.documentElement.style.display = 'block';
+    } else {
+      top.location = self.location;
+    }
+
     EventBus.$on("sign-event", txParams => {
       this.signTx = txParams;
       this.signModal = true;
@@ -305,6 +312,10 @@ export default {
 
 <style lang="scss">
 @import "@/assets/style.scss";
+
+html {
+  display: none;
+}
 
 .zilliqa-logo-big {
   width: 60%;
