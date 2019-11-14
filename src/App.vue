@@ -199,6 +199,7 @@
     <LoginModal v-if="loginModal" v-on:close-login="onCloseLogin" :type="loginType" />
     <SignModal v-if="signModal" v-on:close-sign="onCloseSign" :tx="signTx" />
     <VideoModal v-if="videoModal" :shown="videoModal" />
+    <InfoModal v-if="infoModal" :shown="infoModal" />
   </div>
 </template>
 
@@ -209,6 +210,7 @@ import { mapGetters } from "vuex";
 import LoginModal from "@/components/LoginModal";
 import SignModal from "@/components/SignModal";
 import VideoModal from "@/components/VideoModal";
+import InfoModal from "@/components/InfoModal";
 
 export default {
   name: "App",
@@ -224,6 +226,7 @@ export default {
       signModal: false,
       signTx: null,
       loginModal: false,
+      infoModal: false,
       videoModal: false
     };
   },
@@ -276,6 +279,10 @@ export default {
 
     EventBus.$on("video-event", () => {
       this.videoModal = true;
+    });
+
+    EventBus.$on("info-event", () => {
+      this.infoModal = true;
     });
 
     EventBus.$on("close-sign", () => {

@@ -18,7 +18,7 @@
           <WalletCard :wallet="pinnedWallets[1]" v-if="pinnedWallets[1] !== undefined" />
           <WalletCardPlaceholder v-else />
 
-          <div class="infopages">
+          <div class="infopages" @click="openInfoModal">
             <div class="content mb-4">
               Before transactions can be submitted or signed for, the multisig wallet must be initialized.
             </div>
@@ -62,6 +62,9 @@ export default {
   methods:{
     openVideoModal() {
       EventBus.$emit("video-event");
+    },
+    openVideoModal() {
+      EventBus.$emit("info-event");
     }
   }
 };

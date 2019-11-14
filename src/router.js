@@ -7,7 +7,6 @@ import Import from './views/Import.vue'
 import WalletList from './views/WalletList.vue'
 import Wallet from './views/Wallet.vue'
 import Dashboard from './views/Dashboard.vue'
-import InfoPage from './views/InfoPage.vue'
 
 Vue.use(Router)
 
@@ -47,11 +46,6 @@ export default new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
-    },
-    {
-      path: '/info-page',
-      name: 'info-page',
-      component: InfoPage
     },
     /* {
       path: '/about',
