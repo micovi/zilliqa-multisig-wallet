@@ -111,7 +111,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(1000),
+        gasLimit: Long.fromNumber(2000),
         data: JSON.stringify({
           _tag: "SignTransaction",
           params: [
@@ -134,7 +134,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(1000),
+        gasLimit: Long.fromNumber(2000),
         data: JSON.stringify({
           _tag: "RevokeSignature",
           params: [
@@ -157,7 +157,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(8000),
+        gasLimit: Long.fromNumber(9000),
         data: JSON.stringify({
           _tag: "ExecuteTransaction",
           params: [
