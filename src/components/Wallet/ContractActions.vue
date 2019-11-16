@@ -6,7 +6,7 @@
     <div class="content">
       <div class="balance mb-4">{{ formattedBalance }} ZIL</div>
 
-      <button class="btn btn-primary btn-block mb-3"  @click="$emit('new-transaction')">
+      <button class="btn btn-primary btn-block mb-3"  @click="$emit('new-transaction')" v-if="isOwner">
         <i class="fas fa-exchange-alt"></i> Transaction
       </button>
       <button href="#" class="btn btn-outline-primary text-primary btn-block" @click="$emit('add-funds')">
@@ -19,13 +19,24 @@
 
 <script>
 import numbro from "numbro";
+import { mapGetters } from "vuex";
+import { toBech32Address } from '@zilliqa-js/crypto';
 
 export default {
   name: "ContractActions",
-  props: ["address", "zilliqa", "balance"],
+  props: ["address", "zilliqa", "balance", "owners_list"],
   computed: {
+     ...mapGetters("general", {
+      personalAddress: "personalAddress"
+    }),
     formattedBalance() {
       return numbro(this.balance).format({ thousandSeparated: true, mantissa:3   });
+    },
+    isOwner() {
+      const personal = toBech32Address(this.personalAddress);
+      let found =  this.owners_list.find(owner => owner.address === personal);
+
+      return found;
     }
   }
 };

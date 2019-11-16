@@ -21,14 +21,14 @@ const getters = {
         return state.wallets.find(item => item.contractId === address);
     },
     wallets: (state, getters, rootState, rootGetters) => {
-        const personalAddress = toBech32Address(rootGetters['general/personalAddress']);
+        //const personalAddress = toBech32Address(rootGetters['general/personalAddress']);
         let network = rootGetters['general/selectedNetwork'].url;
 
         return state.wallets.filter(item => {
             const isInNetwork = item.network === network;
-            const isOwner = item.owners_list.find(owner => owner.address === personalAddress);
+            //const isOwner = item.owners_list.find(owner => owner.address === personalAddress);
 
-            if(isInNetwork && isOwner !== undefined) return true;
+            if(isInNetwork) return true;
 
             return false;
         });

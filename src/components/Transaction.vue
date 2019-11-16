@@ -31,7 +31,7 @@
         class="signatures font-weight-bold"
       >{{ transaction.signatures_count }}/{{ owners.length }}</div>
 
-      <div class="main-actions">
+      <div class="main-actions" v-if="isOwner">
         <div class="action sign" v-if="!hasSigned && !canExecute" @click="onSign">
           <img src="@/assets/Sign.svg" />
           Sign
@@ -100,6 +100,10 @@ export default {
     },
     canExecute() {
       return this.transaction.signatures_count >= this.signatures_need;
+    },
+    isOwner() {
+      let found =  this.owners.find(owner => owner === this.personalAddress.toLowerCase());
+      return found;
     }
   },
   methods: {
