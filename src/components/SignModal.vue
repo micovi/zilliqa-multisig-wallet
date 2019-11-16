@@ -270,7 +270,7 @@ export default {
 
         const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
         if(zils < 20) {
-          throw new Error('You account should have more than 20 ZIL to be able to perform multisig actions.');
+          throw new Error('You account should have more than 25 ZIL to be able to perform multisig actions.');
         }
 
         this.loading = 'Trying to sign and send transaction... this might take between 3-5 minutes.';
