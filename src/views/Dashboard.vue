@@ -8,7 +8,7 @@
         <div class="dashboard-screen">
           <WalletCard :wallet="pinnedWallets[0]" v-if="pinnedWallets[0] !== undefined" />
           <WalletCardPlaceholder v-else />
-          <div class="explainerVideo">
+          <div class="explainerVideo" @click="openVideoModal">
             <div class="title">
               <i class="far fa-play-circle fa-2x mb-2"></i>
             </div>
@@ -58,6 +58,11 @@ export default {
     personalBech32() {
       return toBech32Address(this.personalAddress);
     }
+  },
+  methods:{
+    openVideoModal() {
+      EventBus.$emit("video-event");
+    }
   }
 };
 </script>
@@ -85,6 +90,7 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  cursor:pointer;
 
   justify-content: flex-end;
 

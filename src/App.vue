@@ -198,6 +198,7 @@
     </div>
     <LoginModal v-if="loginModal" v-on:close-login="onCloseLogin" :type="loginType" />
     <SignModal v-if="signModal" v-on:close-sign="onCloseSign" :tx="signTx" />
+    <VideoModal v-if="videoModal" :shown="videoModal" />
   </div>
 </template>
 
@@ -207,20 +208,23 @@ import { mapGetters } from "vuex";
 
 import LoginModal from "@/components/LoginModal";
 import SignModal from "@/components/SignModal";
+import VideoModal from "@/components/VideoModal";
 
 export default {
   name: "App",
   components: {
     NetworkSelector,
     LoginModal,
-    SignModal
+    SignModal,
+    VideoModal
   },
   data() {
     return {
       loginType: null,
       signModal: false,
       signTx: null,
-      loginModal: false
+      loginModal: false,
+      videoModal: false
     };
   },
   computed: {
@@ -258,9 +262,29 @@ export default {
     }
   },
   mounted() {
+    // add clickjacking frame-killing
+    if (self == top) {
+      document.documentElement.style.display = 'block';
+    } else {
+      top.location = self.location;
+    }
+
     EventBus.$on("sign-event", txParams => {
       this.signTx = txParams;
       this.signModal = true;
+    });
+
+    EventBus.$on("video-event", () => {
+      this.videoModal = true;
+    });
+
+    EventBus.$on("close-sign", () => {
+      this.signModal = false;
+      return window.location.reload();
+    });
+
+    EventBus.$on("video-close", () => {
+      this.videoModal = false;
     });
 
     EventBus.$on("sign-success", () => {
@@ -288,6 +312,10 @@ export default {
 
 <style lang="scss">
 @import "@/assets/style.scss";
+
+html {
+  display: none;
+}
 
 .zilliqa-logo-big {
   width: 60%;

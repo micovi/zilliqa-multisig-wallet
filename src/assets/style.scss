@@ -1,4 +1,4 @@
-@import "@/assets/vars";
+@import '@/assets/vars';
 
 .swal2-popup {
   background-color: $dark !important;
@@ -11,7 +11,7 @@
   }
 }
 
-@import "@/../node_modules/bootstrap/scss/bootstrap";
+@import '@/../node_modules/bootstrap/scss/bootstrap';
 
 html,
 body {
@@ -354,7 +354,7 @@ p {
 
         z-index: 2;
         background-color: transparentize(
-          lighten(map-get($theme-colors, "danger"), 10),
+          lighten(map-get($theme-colors, 'danger'), 10),
           0.2
         );
         align-items: center;
@@ -385,7 +385,7 @@ p {
 
       &:hover {
         cursor: pointer;
-        background-color: lighten(map-get($theme-colors, "success"), 40);
+        background-color: lighten(map-get($theme-colors, 'success'), 40);
       }
     }
   }
@@ -625,6 +625,28 @@ p {
       margin-right: 0.5rem;
     }
 
+    .pallete-colors {
+      margin-right:0.25rem;
+      display: flex;
+      align-items:center;
+      padding-top:4px;
+      display: none;
+      &.open {
+        display: flex;
+      }
+      .color {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: 1px solid #fff;
+        margin-right: 0.25rem;
+
+        &:hover {
+          border:2px solid #fff;
+        }
+      }
+    }
+
     .pin.isPinned {
       svg path {
         fill: #fff;
@@ -739,6 +761,14 @@ p {
   }
 }
 
+.dashboard-screen {
+   .wallet-card {
+      .actions {
+        display: none;
+      }
+    }
+}
+
 @media screen and(max-width: 600px) {
   img.zilliqa {
     display: none;
@@ -806,4 +836,17 @@ p {
       }
     }
   }
+}
+
+.pallete-blue {
+  background-color: #074b96 !important;
+}
+.pallete-purple {
+  background-color: #590796 !important;
+}
+.pallete-green {
+  background-color: #0a574b !important;
+}
+.pallete-black {
+  background-color: #000000 !important;
 }

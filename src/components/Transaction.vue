@@ -31,7 +31,7 @@
         class="signatures font-weight-bold"
       >{{ transaction.signatures_count }}/{{ owners.length }}</div>
 
-      <div class="main-actions">
+      <div class="main-actions" v-if="isOwner">
         <div class="action sign" v-if="!hasSigned && !canExecute" @click="onSign">
           <img src="@/assets/Sign.svg" />
           Sign
@@ -100,6 +100,10 @@ export default {
     },
     canExecute() {
       return this.transaction.signatures_count >= this.signatures_need;
+    },
+    isOwner() {
+      let found =  this.owners.find(owner => owner === this.personalAddress.toLowerCase());
+      return found;
     }
   },
   methods: {
@@ -111,7 +115,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(50000),
+        gasLimit: Long.fromNumber(2000),
         data: JSON.stringify({
           _tag: "SignTransaction",
           params: [
@@ -134,7 +138,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(50000),
+        gasLimit: Long.fromNumber(2000),
         data: JSON.stringify({
           _tag: "RevokeSignature",
           params: [
@@ -157,7 +161,7 @@ export default {
         toAddr: fromBech32Address(this.wallet),
         amount: new BN(0),
         gasPrice: new BN(1000000000),
-        gasLimit: Long.fromNumber(50000),
+        gasLimit: Long.fromNumber(9000),
         data: JSON.stringify({
           _tag: "ExecuteTransaction",
           params: [
@@ -171,6 +175,15 @@ export default {
       });
 
       EventBus.$emit("sign-event", tx);
+    },
+    viewblock(txid) {
+      let link = `https://viewblock.io/zilliqa/tx/${txid}`;
+      
+      if(this.network.url === 'https://dev-api.zilliqa.com') {
+        link += '?network=testnet';
+      }
+
+      return link;
     }
   },
   mounted() {
@@ -178,7 +191,7 @@ export default {
       if (tx.ledger === true) {
         Swal.fire({
           type: "success",
-          html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.tx}?network=testnet">${tx.tx}</a>`
+          html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.tx}</a>`
         }).then(() => {
           window.location.reload();
         });
@@ -186,7 +199,7 @@ export default {
         if (tx.id !== undefined && tx.receipt.success === true) {
           Swal.fire({
             type: "success",
-            html: `Transaction has been successfully sent <a href="https://viewblock.io/tx/${tx.id}?network=testnet">${tx.id}</a>`
+            html: `Transaction has been successfully sent <a target="_blank" href="${this.viewblock(tx.id)}">${tx.id}</a>`
           }).then(() => {
             window.location.reload();
           });

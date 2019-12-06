@@ -92,6 +92,7 @@ export default {
 
         this.constructOwners(owners.value);
 
+        /*
         // need this for find function
         const personala = toBech32Address(this.personalAddress);
 
@@ -106,6 +107,8 @@ export default {
           throw new Error('You are not in owners list');
         }
 
+        */
+
         this.deployedWallet = {
           transId: null,
           contractId: toBech32Address(address),
@@ -119,6 +122,7 @@ export default {
           this.isSuccess = true;
           this.isLoading = false;
         } catch (error) {
+          console.error(error);
           Swal.fire({
             type: 'error',
             text: 'Wallet could not be imported. Please check input address.'

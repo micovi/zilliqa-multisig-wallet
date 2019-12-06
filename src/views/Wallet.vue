@@ -18,6 +18,7 @@
       <div class="sidebar">
         <contract-actions
           :balance="wallet.balance"
+          :owners_list="wallet.owners_list"
           class="mb-4"
           v-on:add-funds="onAddFunds"
           v-on:new-transaction="onNewTransaction"
