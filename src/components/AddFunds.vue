@@ -62,7 +62,7 @@ export default {
     return {
       amount: 0,
       gasPrice: 1000000000,
-      gasLimit: 1000,
+      gasLimit: 2000,
       isLoading: false,
       isSuccess: false,
       txId: null
