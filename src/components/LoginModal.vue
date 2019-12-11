@@ -42,6 +42,38 @@
                 </div>
               </div>
             </div>
+            <div v-if="type === 'zilpay'">
+              <div class="account-selector">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <td class="small">Address</td>
+                      <td class="small">Balance</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(account, index) in accounts"
+                      class="pointer"
+                      :key="index"
+                      @click="useLedgerAccount(index)"
+                    >
+                      <td class="small">{{ account.address }}</td>
+                      <td class="small">{{ account.balance }} ZIL</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="d-flex justify-content-between">
+                  <button
+                    class="btn btn-success"
+                    @click="useLedgerAccount(0)"
+                    v-if="accounts.length >= 1"
+                  >
+                    Use #0
+                  </button>
+                </div>
+              </div>
+            </div>
             <div v-if="type === 'keystore'">
               <div class="mb-4">
                 <label class="d-block">1. Select your keystore.json file</label>
@@ -93,10 +125,12 @@ import Ledger from '@/utils/zil-ledger-interface';
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { mapGetters } from 'vuex';
+import ZilPayMixin from '@/mixins/zilpay';
 
 export default {
   name: 'LoginModal',
   props: ['type'],
+  mixins: [ZilPayMixin],
   data() {
     return {
       file: null,
@@ -114,7 +148,47 @@ export default {
       network: 'selectedNetwork'
     })
   },
+  mounted() {
+    this
+      .isLoad()
+      .then(() => this.zilPayTest())
+      .then(test => {
+        if (!test) {
+          return null;
+        }
+
+        this.observable(this.zilpayAddressCb);
+      });
+  },
   methods: {
+    async zilpayAddressCb(account) {
+      if (!account || !account.bech32) {
+        return null;
+      }
+
+      this.error = false;
+
+      let balance = null;
+
+      try {
+        balance = await window
+          .zilPay
+          .blockchain
+          .getBalance(account.bech32);
+
+        const zils = units.fromQa(new BN(balance.result.balance), units.Units.Zil);
+
+        balance = zils;        
+      } catch (err) {
+        balance = 0;
+      } finally {
+        this.accounts = [{
+          balance,
+          address: account.bech32
+        }];
+        this.loading = false;
+      }
+    },
     readUploadedFileAsText(inputFile) {
       const temporaryFileReader = new FileReader();
 
@@ -225,5 +299,8 @@ export default {
         }
       }
     }
+  }
+  .pointer {
+    cursor: pointer;
   }
 </style>
