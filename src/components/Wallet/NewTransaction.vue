@@ -65,7 +65,7 @@ export default {
       destination: null,
       destinationError: false,
       amount: 0,
-      gasPrice: 1000000000,
+      gasPrice: 2000000000,
       tag: '',
       gasLimit: 50000,
       isLoading: false,

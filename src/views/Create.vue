@@ -97,7 +97,7 @@ export default {
     return {
       owners: [],
       signatures: 2,
-      gasPrice: 1000000000,
+      gasPrice: 2000000000,
       gasLimit: 25000,
       isLoading: false,
       isDeployed: false,

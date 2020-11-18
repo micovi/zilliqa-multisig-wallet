@@ -1,19 +1,18 @@
 const txnEncoder = require('@zilliqa-js/account/dist/util').encodeTransactionProto;
 const { BN, Long } = require('@zilliqa-js/util');
-// const { compressPublicKey } = require('@zilliqa-js/crypto/dist/util');
 
 const CLA = 0xe0;
 const INS = {
     "getVersion": 0x01,
     "getPublickKey": 0x02,
     "getPublicAddress": 0x02,
-    "signTxn": 0x04
+    "signTxn": 0x04,
+    "signHash": 0x08
 };
 
 const PubKeyByteLen = 33;
-// const AddrByteLen = 20;
 const SigByteLen = 64;
-// const HashByteLen = 32;
+const HashByteLen = 32;
 // https://github.com/Zilliqa/Zilliqa/wiki/Address-Standard#specification
 const Bech32AddrLen = "zil".length + 1 + 32 + 6;
 
@@ -28,6 +27,7 @@ class LedgerInterface {
 
     constructor(transport, scrambleKey = "w0w") {
         this.transport = transport;
+        transport.setExchangeTimeout(180000);
         transport.decorateAppAPIMethods(
             this,
             [
@@ -86,8 +86,32 @@ class LedgerInterface {
             .send(CLA, INS.getPublicAddress, P1, P2, payload)
             .then(response => {
                 // After the first PubKeyByteLen bytes, the remaining is the bech32 address string.
-                const pubAddr = response.slice(PubKeyByteLen, PubKeyByteLen + Bech32AddrLen).toString("utf-8");
-                return { pubAddr };
+                const pubAddr = response
+                    .slice(PubKeyByteLen, PubKeyByteLen + Bech32AddrLen)
+                    .toString('utf-8');
+                const publicKey = response.toString('hex').slice(0, PubKeyByteLen * 2);
+                return { pubAddr, publicKey };
+            });
+    }
+
+    signHash(keyIndex, hashStr) {
+        const P1 = 0x00;
+        const P2 = 0x00;
+        let indexBytes = Buffer.alloc(4);
+        indexBytes.writeInt32LE(keyIndex);
+        const hashBytes = Buffer.from(hashStr, "hex");
+        let hashLen = hashBytes.length;
+        if (hashLen <= 0) {
+            throw Error(`Hash length ${hashLen} is invalid`);
+        }
+        if (hashLen > HashByteLen) {
+            hashBytes.slice(0, HashByteLen);
+        }
+        const payload = Buffer.concat([indexBytes, hashBytes]);
+        return this.transport
+            .send(CLA, INS.signHash, P1, P2, payload)
+            .then(response => {
+                return { sig: response.toString('hex').slice(0, SigByteLen * 2) }
             });
     }
 
@@ -113,10 +137,10 @@ class LedgerInterface {
         }
 
         var txnBytes = txnEncoder(txnParams);
-        const message = JSON.stringify({ "Encoded transaction": txnBytes.toString('hex') }, null, 2);
-        console.log(message);
+        // const message = JSON.stringify({ "Encoded transaction": txnBytes.toString('hex') }, null, 2);
+        // console.log(chalk.green(message));
 
-        const STREAM_LEN = 200; // Stream in batches of STREAM_LEN bytes each.
+        const STREAM_LEN = 128; // Stream in batches of STREAM_LEN bytes each.
         var txn1Bytes;
         if (txnBytes.length > STREAM_LEN) {
             txn1Bytes = txnBytes.slice(0, STREAM_LEN);
@@ -136,7 +160,6 @@ class LedgerInterface {
         // 3. 4 bytes for txn1SizeBytes (number of bytes being sent now).
         // 4. txn1Bytes of actual data.
         const payload = Buffer.concat([indexBytes, hostBytesLeftBytes, txn1SizeBytes, txn1Bytes]);
-
 
         let transport = this.transport;
         return transport
@@ -170,8 +193,6 @@ class LedgerInterface {
             })
             .then(result => {
                 return { sig: (result.toString('hex').slice(0, SigByteLen * 2)) };
-            }).catch(function(err){
-                console.log(err);
             });
 
     }
